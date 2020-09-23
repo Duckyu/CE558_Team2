@@ -40,50 +40,27 @@ The abstract goes here. The abstract goes here. The abstract goes here. The abst
 
 \section{Introduction}
 % no \IEEEPARstart
-There are various applications that perform tasks using robots in the current urban environment. In particular, UAV, a platform with excellent access to 3D space, has been used for various missions such as crack inspection of structures, lifesaving in disaster situations, and transportation of goods. However, in most cases, it is often operated based on a prior map, and has not been actually used to obtain new environmental information due to instability in control and low constraints on location information. Accordingly, various studies to obtain environmental information using UAVs in the fields of active slam, exploration, and coverage path planning are actively being conducted. Most of these studies presuppose the designation of the mapping area, such as indoor environments or structures that know the approximate size. This prerequisite is necessary because the termination condition of the control strategy for mapping is unclear, and the ambiguity is originated from the control strategy which prioritizes the free space.
+Various applications perform tasks using robots in the current urban environment. In particular, UAV, a platform with excellent access to 3D space, has been used for various missions such as crack inspection of structures, lifesaving in disaster situations, and transportation of goods. In particular, automated 3D reconstruction is being evaluated as an essential application in urban environments. The 3D model created through 3D reconstruction is used to visualize buildings, an inspection of structural safety, map-based location estimation, and confirmation of deformation of structures over a long period of time, which is difficult for humans to recognize. However, most 3D reconstructions are often operated based on prior maps because of the instability in control, and unlike mobile robots moving on the ground, there are few constraints in estimating the position, so there are few practical applications without any prior information. Therefore, until now, maps have been created by using manually controlled gases or directly measuring structures by human labor. In a manually controlled aircraft, a localization algorithm is applied in the GPS denied area to estimate the position and fly. In this case, the location estimation fails due to the influence of the surrounding environment of the structure, or the inaccuracy of the UAV location increases. Consequently, the inaccuracy in map generation also increases. In addition, in the case of direct surveying by humans, it is very dangerous because a ladder truck must be used to map the center of a structure with high accessibility or the lower part of a bridge.
 
-Unlike the NBVP or frontier exploration strategy, which selects the next point in free space next to the unknown area, this paper obtains continuous structure information by designating the next point based on the newly updated map information. This allows the exploration termination condition to be defined not as the ratio of the filled map to the size of the entire given exploration area, but as connectivity of continuous structures to the ground. Moreover, the proposed algorithm can be performed without knowing the approximate size information. In addition, a structure to obtain map information can be expressed as a three-dimensional figure in various and simple forms. In the proposed algorithm, a path suitable for each figure is created, and when two or more figures are recognized in the newly updated map information, a path that prioritizes the currently inspected figure is created by storing the location and shape of the structure in a tree data structure. After that, it creates a path to inspect other recognized shapes. The light-weight clustering technique was used to classify the structure into simple shapes, which considers the characteristics of UAVs that cannot use a high computation module due to low payload. A path suitable for structure mapping was created as a waypoint, and in order to create a smooth path in consideration of the dynamics of the UAV, a continuous minimum jerk path was created in consideration of the start to end point configuration through a motion primitive algorithm.
+Accordingly, attempts to obtain environmental information by utilizing UAVs in active slam, exploration, coverage path planning, etc. for 3d reconstruction are actively in progress. However, studies to date have a limitation in that the mapping area must be designated, such as indoors of the entire map or structures that know the approximate size. This is because a control strategy that prioritizes free space in common is selected, so the terminating condition of the mapping becomes unclear.
 
-\subsection{Subsection Heading Here}
-Subsection text here. Subsection text here. Subsection text here. Subsection text here.
+Unlike the NBVP or frontier exploration strategy, which selects the next point in free space next to the unknown area, this paper obtains continuous structure information by designating the next point based on the newly updated map information. This allows the exploration termination condition to be defined not as the ratio of the filled map to the size of the entire given exploration area, but as connectivity of continuous structures to the ground. Moreover, the proposed algorithm can be performed without knowing the approximate size information.
+
+In addition, a structure to obtain map information can be expressed as a three-dimensional figure in various and simple forms. In the proposed algorithm, a path suitable for each figure is created, and when two or more figures are recognized in the newly updated map information, a path that prioritizes the currently inspected figure is created by storing the location and shape of the structure in a tree data structure. After that, it creates a path to inspect other recognized shapes.
+
+The light-weight clustering technique was used to classify the structure into simple shapes, which considers the characteristics of UAVs that cannot use a high computation module due to low payload. A path suitable for structure mapping was created as a waypoint, and in order to create a smooth path in consideration of the dynamics of the UAV, a continuous minimum jerk path was created in consideration of the start to end point configuration through a motion primitive algorithm.
 
 
-\subsubsection{Subsubsection Heading Here}
-Subsubsection text here. Subsubsection text here. Subsubsection text here. Subsubsection text here.
+\subsection{Related Work}
+The purpose of 3d reconstruction exploration is to map the 3d structure in an environment without prior knowledge. As for exploration to acquire the unknown area's information, control safety and fast information acquisition are essential.
 
-\begin{figure}[!h]
-  \centering
-    \includegraphics[width=2.5in]{beaver.jpg}
-  \caption{Simulation Results}
-  \label{figlabel}
-\end{figure}
+As defined in \cite{makarenko2002experiment}, exploration is a concept in which mapping and motion control are mixed. Therefore, in recent research on exploration, focused on high mapping quality, accurate localization, and safe and fast control for information acquisition. Research to improve the mapping quality has been conducted by using RH-NBVP\cite{bircher2016receding},\cite{selin2019efficient}, which follows the concept of receding horizon in model predictive control, or by using coverage path planning \cite{bircher2015structural},\cite{song2018epsilon},\cite{heng2015efficient}. In the study of designing trajectory in consideration of navigation, the uncertainty of localization itself can be reduced by revisiting the features that were previously used in visual localization to see features with low uncertainty \cite{spasojevic2020perception},\cite{dang2018visual},\cite{zhang2018laser}. For the same purpose, information based path planning\cite{dai2020fast} was used. In order to design safe and fast control, several trajectory candidates, such as minimum snap or minimum jerk, taking into account the dynamics of the robot, are generated(\cite{zhang2018p}) or research to reduce control complexity by simplifying control points in the guaranteed C-space area(\cite{tordesillas2020faster}).
 
-As can be seen in Fig. \ref{figlabel}, example figure can be placed as below.
-Subsubsection text here. Subsubsection text here. Subsubsection text here. Subsubsection text here.
+Moreover, when it is determined that there are no more areas to be mapped in the local area, a study that creates a new path to an appropriate location using the existing path stored in the graph structure has been published(\cite{witting2018history}).
 
-\begin{table}[!h]
-% increase table row spacing, adjust to taste
-\renewcommand{\arraystretch}{1.3}
-  \caption{An Example of a Table}
-  \label{tablelabel}
-  \centering
-  \begin{tabular}{|c||c|}
-  \hline
-  One & Two\\
-  \hline
-  Three & Four\\
-  \hline
-  \end{tabular}
-\end{table}
+Research that improves both maps and poses uncertainty through machine learning \cite{popovic2019informative} or hierarchical path planning \cite{papachristos2017uncertainty} are the state-of-the-art method so that all three characteristics can be considered. The research to lighten the computational complexity of the exploration algorithm in consideration of the UAV's low computational ability is also one of the trends(\cite{mcguire2019minimal}).
 
-As can be seen in \ref{tablelabel}, example table can be placed as below. Subsubsection text here. Subsubsection text here. Subsubsection text here. Subsubsection text here.
-
-\section{Conclusion}
-The conclusion goes here. The conclusion goes here. The conclusion goes here. The conclusion goes here This is how to cite a paper \cite{jung2018multi}. Look at references.bib file for more details.
-
-% use section* not to add number in the front
-\section*{Acknowledgment}
-The authors would like to thank...
+In this paper, in order to apply 3d reconstruction exploration to UAV control, map (\cite{hornung2013octomap}) expressed in the form of octree was used to enable fast path collision inspection. As pointed out by the author of \cite{gammell2014informed}, the probabilistic path planning algorithm; such as RRT\cite{lavalle1998rapidly} and PRM\cite{geraerts2004comparative}, shows the lousy performance on space visiting efficiency. By creating a minimum snap trajectory consists of waypoints that clearly cover all the surface of the structure, the spatial visiting inefficiency has been reduced compared to the probability-based path.
 
 
 % references section
@@ -94,5 +71,3 @@ The authors would like to thank...
 
 % that's all folks
 \end{document}
-
-
