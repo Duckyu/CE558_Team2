@@ -1,0 +1,6 @@
+[submodule "Firmware"]
+	path = Firmware
+	url = https://github.com/Duckyu/Firmware
+[submodule "px4_sitl_duck"]
+	path = px4_sitl_duck
+	url = https://github.com/Duckyu/px4_sitl_duck
