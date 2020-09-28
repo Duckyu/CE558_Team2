@@ -11,5 +11,4 @@
 	
 
 ## Schedule
-* until Oct. 5th
-- [ ] randomly select the pointcloud for waypoint generation will be implemented
+- [ ] randomly select the pointcloud for waypoint generation will be implemented(until Oct. 5th)
