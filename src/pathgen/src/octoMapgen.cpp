@@ -1,55 +1,25 @@
 #include "octoMapgen.h"
 
-using namespace duck;
+using namespace imSLAM;
 using namespace unavlib;
 
-void octoMapgen::getparam()
+octoMapgen::octoMapgen()
 {
-  std::vector<double> tfIn;
-  if(m_nh.getParam("tf/robot2lidarBase",tfIn))
-  {
-    if(tfIn.size() == 7)
-    {
-      geometry_msgs::Pose geoTF;
-      geoTF.position.x = tfIn[0];
-      geoTF.position.y = tfIn[1];
-      geoTF.position.z = tfIn[2];
-      geoTF.orientation.x = tfIn[3];
-      geoTF.orientation.y = tfIn[4];
-      geoTF.orientation.z = tfIn[5];
-      geoTF.orientation.w = tfIn[6];
-      m_tf_robot2sensor = cvt::geoPose2eigen(geoTF);
-      std::cout<<"ROBOT 2 SENSOR : \n"<<geoTF<<std::endl;
-    }
-    else
-    {
-      ROS_ERROR("TF MUST BE X,Y,Z,Qx,Qy,Qw,Qz");
-      exit(0);
-    }
-  }
-  if(m_nh.getParam("tf/lidarBase2lidar",tfIn))
-  {
-    if(tfIn.size() == 7)
-    {
-      geometry_msgs::Pose geoTF;
-      geoTF.position.x = tfIn[0];
-      geoTF.position.y = tfIn[1];
-      geoTF.position.z = tfIn[2];
-      geoTF.orientation.x = tfIn[3];
-      geoTF.orientation.y = tfIn[4];
-      geoTF.orientation.z = tfIn[5];
-      geoTF.orientation.w = tfIn[6];
-      m_tf_sensor2lidar = cvt::geoPose2eigen(geoTF);
-      std::cout<<"SENSOR 2 LIDAR : \n"<<geoTF<<std::endl;
-    }
-    else
-    {
-      ROS_ERROR("TF MUST BE X,Y,Z,Qx,Qy,Qw,Qz");
-      exit(0);
-    }
-  }
-  //  m_nh.param<bool>("sensorOn/odom",m_flag_odomOn,false);
-    m_nh.param<float>("octomap/resolution",m_resolution,0.1);
+  //  static ros::Subscriber sub1 = m_nh.subscribe<imSLAM::de_node>("deepExpress/octoMapgen/nodeIn",1,&octoMapgen::callback_node,this);
+  static ros::Subscriber sub1 = m_nh.subscribe<im_node>("imSLAM/octoMapgen/nodeIn",10000,&octoMapgen::callback_node,this);
+  m_pub_octoMap = m_nh.advertise<sensor_msgs::PointCloud2>("imSLAM/octoMapgen/debug/octoMap",100);
+  static ros::Subscriber sub4 = m_nh.subscribe<std_msgs::Int32>("/imSLAM/octoMapgen/octomapReq",1000,&octoMapgen::callback_octoPub,this);
+
+  getparam();
+
+  m_octree = new octomap::OcTree(m_resolution);
+  m_octree->setProbHit(0.6);
+  m_octree->setProbMiss(0.4);
+}
+
+octoMapgen::~octoMapgen()
+{
+
 }
 
 void octoMapgen::callback_node(const imSLAM::im_node::ConstPtr& msg)
@@ -105,3 +75,51 @@ void octoMapgen::callback_octoPub(const std_msgs::Int32::ConstPtr &msg)
   std::cout<<"[OCTOMAP] OCTOMAP PUBLISHED"<<std::endl;
 }
 
+void octoMapgen::getparam()
+{
+  std::vector<double> tfIn;
+  if(m_nh.getParam("tf/robot2lidarBase",tfIn))
+  {
+    if(tfIn.size() == 7)
+    {
+      geometry_msgs::Pose geoTF;
+      geoTF.position.x = tfIn[0];
+      geoTF.position.y = tfIn[1];
+      geoTF.position.z = tfIn[2];
+      geoTF.orientation.x = tfIn[3];
+      geoTF.orientation.y = tfIn[4];
+      geoTF.orientation.z = tfIn[5];
+      geoTF.orientation.w = tfIn[6];
+      m_tf_robot2sensor = cvt::geoPose2eigen(geoTF);
+      std::cout<<"ROBOT 2 SENSOR : \n"<<geoTF<<std::endl;
+    }
+    else
+    {
+      ROS_ERROR("TF MUST BE X,Y,Z,Qx,Qy,Qw,Qz");
+      exit(0);
+    }
+  }
+  if(m_nh.getParam("tf/lidarBase2lidar",tfIn))
+  {
+    if(tfIn.size() == 7)
+    {
+      geometry_msgs::Pose geoTF;
+      geoTF.position.x = tfIn[0];
+      geoTF.position.y = tfIn[1];
+      geoTF.position.z = tfIn[2];
+      geoTF.orientation.x = tfIn[3];
+      geoTF.orientation.y = tfIn[4];
+      geoTF.orientation.z = tfIn[5];
+      geoTF.orientation.w = tfIn[6];
+      m_tf_sensor2lidar = cvt::geoPose2eigen(geoTF);
+      std::cout<<"SENSOR 2 LIDAR : \n"<<geoTF<<std::endl;
+    }
+    else
+    {
+      ROS_ERROR("TF MUST BE X,Y,Z,Qx,Qy,Qw,Qz");
+      exit(0);
+    }
+  }
+  //  m_nh.param<bool>("sensorOn/odom",m_flag_odomOn,false);
+    m_nh.param<float>("octomap/resolution",m_resolution,0.1);
+}

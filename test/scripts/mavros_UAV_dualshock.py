@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import rospy
+import sys
 from mavros_msgs.srv import CommandBool, SetMode
 from scipy.spatial.transform import Rotation as R
 from std_msgs.msg import String
