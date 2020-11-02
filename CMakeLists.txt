@@ -1,5 +1,5 @@
  cmake_minimum_required(VERSION 2.8.3)
-project(graphslam)
+project(CE558_Team2)
 set(CMAKE_CONFIGURATION_TYPES "Release" CACHE STRING "" FORCE)
 add_compile_options(-std=c++17)
 
@@ -26,7 +26,7 @@ add_message_files(
 
 add_service_files(
   FILES
-  manual_control.srv
+  init_exploration.srv
   test_srv.srv
 )
 
@@ -57,19 +57,45 @@ find_package(OpenCV)
 include_directories(${OpenCV_INCLUDE_DIRS})
 
 
-#PointCloud Registrator
-
-set(pc_registrator_source
-    src/pc_registrator/src/PointCloudRegistrator.cpp
-    src/pc_registrator/src/PointCloudRegistrator.h
+set(control_source
+    src/control/src/control.hpp
+    src/control/src/control.cpp
+    src/control/src/extras.cpp
+    src/control/src/sub_srv_fncs.cpp
 )
 
-set(ndt_source
-    src/pc_registrator/src/ndt.cpp
-    src/pc_registrator/src/ndt.h
+set(mapper_source
+    src/mapper/src/global_pc_registration.cpp
+    src/mapper/src/global_pc_registration.hpp
 )
 
-add_executable(pc_registrator src/pc_registrator/pc_registrator.cpp ${pc_registrator_source} ${ndt_source})
-target_link_libraries(pc_registrator ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
-add_dependencies(pc_registrator graphslam_generate_messages_cpp)
+set(pathgen_source
+    src/pathgen/local_pc_registration/local_pc_registration.cpp
+    src/pathgen/local_pc_registration/local_pc_registration.hpp
+)
 
+# set(octomap_source
+#    src/pathgen/octomap/octoMapgen.cpp
+#    src/pathgen/octomap/octoMapgen.hpp
+# )
+
+add_executable(CE558_control src/control/UAV_control.cpp ${control_source})
+add_dependencies(CE558_control CE558_Team2_generate_messages_cpp)
+target_link_libraries(CE558_control
+    ${catkin_LIBRARIES}
+    ${OpenCV_LIBRARIES}
+)
+
+add_executable(CE558_mapper src/mapper/mapper.cpp ${mapper_source})
+add_dependencies(CE558_mapper CE558_Team2_generate_messages_cpp)
+target_link_libraries(CE558_mapper
+    ${catkin_LIBRARIES}
+    ${OpenCV_LIBRARIES}
+)
+
+add_executable(CE558_pathgen src/pathgen/pathgen.cpp ${pathgen_source})
+add_dependencies(CE558_pathgen CE558_Team2_generate_messages_cpp)
+target_link_libraries(CE558_pathgen
+    ${catkin_LIBRARIES}
+    ${OpenCV_LIBRARIES}
+)

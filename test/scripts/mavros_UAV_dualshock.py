@@ -87,9 +87,9 @@ def joy_callback(joy_data): # self,
         setpoint_msg.type_mask = velocity_mask
         rospy.loginfo("type_mask : %d", setpoint_msg.type_mask)
         setpoint_msg.velocity.x = max_velocity * joy_data.axes[4]
-        setpoint_msg.velocity.y = - max_velocity * joy_data.axes[3]
+        setpoint_msg.velocity.y = max_velocity * joy_data.axes[3]
         setpoint_msg.velocity.z = max_velocity * joy_data.axes[1]
-        setpoint_msg.yaw_rate = - max_velocity * joy_data.axes[0]
+        setpoint_msg.yaw_rate = max_velocity * joy_data.axes[0]
     else:
         hover_flag = True
 
@@ -117,13 +117,13 @@ if __name__ == '__main__':
     # global setpoint_msg
     rospy.init_node('dualshock_UAV', anonymous=True)
     setpoint_msg.coordinate_frame = 8;
+    rate = rospy.Rate(30)
     sub_setup()
 
     while not rospy.is_shutdown():
         try:
-            # rospy.loginfo("try")
             move(setpoint_msg)
-            rospy.sleep(0.1)
+            rate.sleep()
         except rospy.ROSInterruptException:
             rospy.loginfo('Node terminated by pressing Ctrl+C!')
             sys.exit(0)
