@@ -1,0 +1,4 @@
+int8 path_size
+nav_msgs/Path global_path
+---
+bool result

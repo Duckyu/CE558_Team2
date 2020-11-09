@@ -1,125 +1,206 @@
-#include "octoMapgen.h"
+#include "local_pc_registration.hpp"
 
-using namespace imSLAM;
-using namespace unavlib;
-
-octoMapgen::octoMapgen()
-{
-  //  static ros::Subscriber sub1 = m_nh.subscribe<imSLAM::de_node>("deepExpress/octoMapgen/nodeIn",1,&octoMapgen::callback_node,this);
-  static ros::Subscriber sub1 = m_nh.subscribe<im_node>("imSLAM/octoMapgen/nodeIn",10000,&octoMapgen::callback_node,this);
-  m_pub_octoMap = m_nh.advertise<sensor_msgs::PointCloud2>("imSLAM/octoMapgen/debug/octoMap",100);
-  static ros::Subscriber sub4 = m_nh.subscribe<std_msgs::Int32>("/imSLAM/octoMapgen/octomapReq",1000,&octoMapgen::callback_octoPub,this);
-
-  getparam();
-
-  m_octree = new octomap::OcTree(m_resolution);
-  m_octree->setProbHit(0.6);
-  m_octree->setProbMiss(0.4);
+void exploration_local_map::cb_points_front(const sensor_msgs::PointCloud2::ConstPtr& msg){
+  front_ = msg2node(*msg);
 }
 
-octoMapgen::~octoMapgen()
-{
-
+void exploration_local_map::cb_points_up(const sensor_msgs::PointCloud2::ConstPtr& msg){
+  up_ = msg2node(*msg);
 }
 
-void octoMapgen::callback_node(const imSLAM::im_node::ConstPtr& msg)
-{
-  Eigen::Matrix4f odomResult = cvt::geoPose2eigen(msg->odom);
-  Eigen::Matrix4f lidarCenter = cvt::geoPose2eigen(msg->odom)*m_tf_sensor2lidar*m_tf_robot2sensor;
-  pcl::PointCloud<pcl::PointXYZI>::Ptr cloudIn(new pcl::PointCloud<pcl::PointXYZI>());
-  cvt::cloudmsg2cloudptr(msg->lidar,cloudIn);
+void exploration_local_map::cb_model_state(const geometry_msgs::PoseStamped::ConstPtr& msg){
+  pose_previous = pose_current; 
+  pose_current = *msg;
+}
 
-  *cloudIn = cvt::cloud2cloudcut<pcl::PointXYZI>(*cloudIn,pcl::PointXYZ(0,0,1),1,80);
+bool exploration_local_map::fn_path_terminate(CE558_Team2::path_terminate::Request &request,
+                       CE558_Team2::path_terminate::Response &response){
+  termination_flag = true;
+}
 
-  pcl::transformPointCloud(*cloudIn,*cloudIn,lidarCenter);
+CE558_Team2::points_node exploration_local_map::msg2node(sensor_msgs::PointCloud2 points,
+                                                         geometry_msgs::PoseStamped pose_previous,
+                                                         geometry_msgs::PoseStamped pose_current){
+  double points_time = points.header.stamp.toSec();
+  double prev_pose_time = pose_previous.header.stamp.toSec();
+  double curr_pose_time = pose_current.header.stamp.toSec();
+  CE558_Team2::points_node pointsNode;
+//////////////////////
+  pcl::PointCloud<pcl::PointXYZ> cloud_dst;
+  pcl::fromROSMsg(cloudmsg, cloud_dst);
+
+  pcl::PointCloud<pcl::PointXYZ>::Ptr cloud (new pcl::PointCloud<pcl::PointXYZ>);
+  pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_filtered (new pcl::PointCloud<pcl::PointXYZ>);
+  *cloud = cloud_dst;
+
+  pcl::PassThrough<pcl::PointXYZ> pass;
+  pass.setInputCloud (cloud);
+  pass.setFilterFieldName ("z");
+  pass.setFilterLimits (0.0, 10.0);
+  // pass.setFilterLimitsNegative (true);
+  pass.filter (*cloud_filtered);
+
+  pointsNode.node_sensor = *cloud_filtered;
+  pointsNode.node_pose.position.x = pose_previous.pose.position.x + (points_time - prev_pose_time)/(curr_pose_time - prev_pose_time) * (pose_current.pose.position.x - pose_previous.pose.position.x); 
+  pointsNode.node_pose.position.y = pose_previous.pose.position.y + (points_time - prev_pose_time)/(curr_pose_time - prev_pose_time) * (pose_current.pose.position.y - pose_previous.pose.position.y);
+  pointsNode.node_pose.position.z = pose_previous.pose.position.z + (points_time - prev_pose_time)/(curr_pose_time - prev_pose_time) * (pose_current.pose.position.z - pose_previous.pose.position.z);
+  pointsNode.node_pose.orientation = pose_current.pose.orientation;
+  return pointsNode;
+}
+
+pcl::PointCloud<pcl::PointXYZ> exploration_local_map::transform(CE558_Team2::points_node node){
+  
+  pcl::PointCloud<pcl::PointXYZ>::Ptr ptr_transformed(new pcl::PointCloud<pcl::PointXYZ>);
+
+  Eigen::Matrix4f trans;
+  trans = cvt::geoPose2eigen(node.node_pose);
+  pcl::transformPointCloud(node.node_sensor, *ptr_transformed, trans);
+  return *ptr_transformed;
+}
+
+void exploration_local_map::add(sensor_msgs::PointCloud2 node){
+  CE558_Team2::points_node temp;
+  temp = msg2node(node.node_sensor);
+  pc_transformed = transform(temp);
+  pc_accumulated += pc_transformed;
+}
 
 
-  pcl::UniformSampling<pcl::PointXYZI> sampler;
-  sampler.setRadiusSearch(m_resolution);
-  sampler.setInputCloud(cloudIn);
-  sampler.filter(*cloudIn);
+pcl::PointCloud<pcl::PointXYZ> exploration_local_map::voxelize(pcl::PointCloud<pcl::PointXYZ> pc){
+  pcl::PCLPointCloud2::Ptr cloud (new pcl::PCLPointCloud2 ());
+  pcl::PCLPointCloud2::Ptr cloud_filtered (new pcl::PCLPointCloud2 ());
+  *cloud = pc;
+  // Create the filtering object
+  pcl::VoxelGrid<pcl::PCLPointCloud2> sor;
+  sor.setInputCloud (cloud);
+  sor.setLeafSize (2.5981f, 3.4641f, 2.5981f);
+  sor.filter (*cloud_filtered);
+  return *cloud_filtered;
+}
 
-  //*cloudIn = datahandle3d::voxelize_NoOverflow(cloudIn, m_resolution/2.0);
-//  m_pub_octoMap.publish(cvt::cloud2msg(*cloudIn));
 
-  octomap::point3d sensorpt(lidarCenter(0,3),lidarCenter(1,3),lidarCenter(2,3));
-  octomap::Pointcloud temp_octo_pointcloud;
-  for(int i=0;i<cloudIn->size();i++)
-  {
-     temp_octo_pointcloud.push_back(cloudIn->at(i).x,cloudIn->at(i).y,cloudIn->at(i).z);
+pcl::PointCloud<pcl::Normal> exploration_local_map::normalVectorEstimate(pcl::PointCloud<pcl::PointXYZ> pc){
+  pcl::PointCloud<pcl::PointXYZ>::Ptr cloud (new pcl::PointCloud<pcl::PointXYZ>);
+  *cloud = pc;
+
+  // Create the normal estimation class, and pass the input dataset to it
+  pcl::NormalEstimation<pcl::PointXYZ, pcl::Normal> ne;
+  ne.setInputCloud (cloud);
+
+  // Create an empty kdtree representation, and pass it to the normal estimation object.
+  // Its content will be filled inside the object, based on the given input dataset (as no other search surface is given).
+  pcl::search::KdTree<pcl::PointXYZ>::Ptr tree (new pcl::search::KdTree<pcl::PointXYZ> ());
+  ne.setSearchMethod (tree);
+
+  // Output datasets
+  pcl::PointCloud<pcl::Normal>::Ptr cloud_normals (new pcl::PointCloud<pcl::Normal>);
+
+  // Use all neighbors in a sphere of radius 3cm
+  ne.setRadiusSearch (0.03);
+
+  // Compute the features
+  ne.compute (*cloud_normals);
+
+  return *cloud_normals;
+}
+void exploration_local_map::samplingBasePathGen(){
+  
+  pc_accumulated = voxelize(pc_accumulated);
+  pcl::PointCloud<pcl::Normal> norm;
+  norm = normalVectorEstimate(pc_accumulated);
+  int norm_size = norm.size();
+  for(int i = 0; i < norm_size/20; ++i){
+    geometry_msgs::PoseStamped temp;
+    temp.pose.position.x = norm.points[20*i+10].x + norm.points[20*i+10].n_x * 2.0;
+    temp.pose.position.y = norm.points[20*i+10].y + norm.points[20*i+10].n_y * 2.0;
+    temp.pose.position.z = norm.points[20*i+10].z + norm.points[20*i+10].n_z * 2.0;
+    tf::Quaternion q;
+    q.setRPY(0,0,atan(norm.points[20*i+10].nx/norm.points[20*i+10].ny));
+    temp.pose.orientation.x = q.getX();
+    temp.pose.orientation.y = q.getY();
+    temp.pose.orientation.z = q.getZ();
+    temp.pose.orientation.w = q.getW();
+    pose_path.push_back(temp);
+  }  
+}
+// void exploration_local_map::checkCollision(geometry_msgs::PoseStamped poses[], octomap::OcTree octomap);
+void exploration_local_map::pubPath(geometry_msgs::PoseStamped poses[]){
+  // checkCollision()
+  termination_flag = false;
+  last_pc_added = ros::Time::now();
+  CE558_Team2::local_path path;
+  path.request.path_size = poses.size();
+  path.request.poses = poses;
+  srv_local_path.call(path);
+  previous_pc_accumulated.clear();
+  previous_pc_accumulated = pc_accumulated;
+  pose_path.clear();
+  pc_accumulated.clear();
+  pc_transformed.clear();
+  normal_points.clear();
+  normal_voxeled_points.clear();
+}
+
+void exploration_local_map::spinOnce(){
+  if (!termination_flag){
+    add(front_);
+    add(up_);
   }
-  m_octree->insertPointCloudRays(temp_octo_pointcloud,sensorpt);
-
-  static int idx = 0;
-  std::cout<<"[OCTOMAP] NODE "<<idx++<<" INSERTED"<<std::endl;
+  else{
+    samplingBasePathGen();
+    pubPath();
+  }
 }
 
-void octoMapgen::callback_octoPub(const std_msgs::Int32::ConstPtr &msg)
-{
-  std::cout<<"[OCTOMAP] MAKE OCTOMAP!"<<std::endl;
-  pcl::PointCloud<pcl::PointXYZ>::Ptr occupiedCloud(new pcl::PointCloud<pcl::PointXYZ>());
-  for(octomap::OcTree::iterator it = m_octree->begin(); it!=m_octree->end(); ++it)
-  {
-    if(m_octree->isNodeOccupied(*it))
-    {
-      occupiedCloud->push_back(pcl::PointXYZ(it.getCoordinate().x(),it.getCoordinate().y(),
-                                            it.getCoordinate().z()));
-    }
-//      else
-//      {
-//        freeCloud->push_back(pcl::PointXYZ(it.getCoordinate().x(),it.getCoordinate().y(),
-//                                           it.getCoordinate().z()));
-//      }
-  }
-  m_pub_octoMap.publish(cvt::cloud2msg(*occupiedCloud));
-  std::cout<<"[OCTOMAP] OCTOMAP PUBLISHED"<<std::endl;
-}
 
-void octoMapgen::getparam()
-{
-  std::vector<double> tfIn;
-  if(m_nh.getParam("tf/robot2lidarBase",tfIn))
-  {
-    if(tfIn.size() == 7)
-    {
-      geometry_msgs::Pose geoTF;
-      geoTF.position.x = tfIn[0];
-      geoTF.position.y = tfIn[1];
-      geoTF.position.z = tfIn[2];
-      geoTF.orientation.x = tfIn[3];
-      geoTF.orientation.y = tfIn[4];
-      geoTF.orientation.z = tfIn[5];
-      geoTF.orientation.w = tfIn[6];
-      m_tf_robot2sensor = cvt::geoPose2eigen(geoTF);
-      std::cout<<"ROBOT 2 SENSOR : \n"<<geoTF<<std::endl;
-    }
-    else
-    {
-      ROS_ERROR("TF MUST BE X,Y,Z,Qx,Qy,Qw,Qz");
-      exit(0);
-    }
-  }
-  if(m_nh.getParam("tf/lidarBase2lidar",tfIn))
-  {
-    if(tfIn.size() == 7)
-    {
-      geometry_msgs::Pose geoTF;
-      geoTF.position.x = tfIn[0];
-      geoTF.position.y = tfIn[1];
-      geoTF.position.z = tfIn[2];
-      geoTF.orientation.x = tfIn[3];
-      geoTF.orientation.y = tfIn[4];
-      geoTF.orientation.z = tfIn[5];
-      geoTF.orientation.w = tfIn[6];
-      m_tf_sensor2lidar = cvt::geoPose2eigen(geoTF);
-      std::cout<<"SENSOR 2 LIDAR : \n"<<geoTF<<std::endl;
-    }
-    else
-    {
-      ROS_ERROR("TF MUST BE X,Y,Z,Qx,Qy,Qw,Qz");
-      exit(0);
-    }
-  }
-  //  m_nh.param<bool>("sensorOn/odom",m_flag_odomOn,false);
-    m_nh.param<float>("octomap/resolution",m_resolution,0.1);
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// ///passthrough.cpp
+// int main (int argc, char** argv)
+// {
+// pcl::PointCloud<pcl::PointXYZ>::Ptr cloud (new pcl::PointCloud<pcl::PointXYZ>);
+// pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_filtered (new pcl::PointCloud<pcl::PointXYZ>);
+
+// pcl::PassThrough<pcl::PointXYZ> pass;
+// pass.setInputCloud (cloud);
+// pass.setFilterFieldName ("z");
+// pass.setFilterLimits (0.0, 1.0);
+// // pass.setFilterLimitsNegative (true);
+// pass.filter (*cloud_filtered);
+//   // Fill in the cloud data
+//   cloud->width  = 5;
+//   cloud->height = 1;
+//   cloud->points.resize (cloud->width * cloud->height);
+
+//   for (auto& point: *cloud)
+//   {
+//     point.x = 1024 * rand () / (RAND_MAX + 1.0f);
+//     point.y = 1024 * rand () / (RAND_MAX + 1.0f);
+//     point.z = 1024 * rand () / (RAND_MAX + 1.0f);
+//   }
+
+//   std::cerr << "Cloud before filtering: " << std::endl;
+//   for (const auto& point: *cloud)
+//     std::cerr << "    " << point.x << " "
+//                         << point.y << " "
+//                         << point.z << std::endl;
+
+//   // Create the filtering object
+//   pcl::PassThrough<pcl::PointXYZ> pass;
+//   pass.setInputCloud (cloud);
+//   pass.setFilterFieldName ("z");
+//   pass.setFilterLimits (0.0, 1.0);
+//   // pass.setFilterLimitsNegative (true);
+//   pass.filter (*cloud_filtered);

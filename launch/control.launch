@@ -1,0 +1,4 @@
+<launch>
+    <rosparam command="load" file="$(find CE558_Team2)/config/control.yaml"/>
+    <node pkg="CE558_Team2" type="control" name="control" output="screen"/>
+</launch>

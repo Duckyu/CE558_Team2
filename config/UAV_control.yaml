@@ -1,0 +1,11 @@
+takeoff_height : 1.0
+arrival_dist_thres : 0.2
+arrival_yaw_thres : 0.087266
+max_vel : 1.2
+landing_vel : 0.5
+p_gain : 1.0
+i_gain : 0.0
+d_gain : 0.0
+
+img_x : 960.0
+img_y : 540.0

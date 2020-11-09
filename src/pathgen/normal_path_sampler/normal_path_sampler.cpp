@@ -1,4 +1,4 @@
-#include "octoMapgen.h"
+#include "normal_path_sampler.hpp"
 
 using namespace imSLAM;
 using namespace unavlib;
