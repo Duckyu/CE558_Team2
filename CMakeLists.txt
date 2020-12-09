@@ -19,7 +19,7 @@ find_package(catkin REQUIRED COMPONENTS
     sensor_msgs
     unavlib
     message_generation
-    unavlib
+    message_filters
 )
 
 add_message_files(
@@ -37,6 +37,8 @@ add_service_files(
   init_step.srv
   mission_start.srv
   path_terminate.srv
+  go_get_it.srv
+  path_require.srv
 )
 
 generate_messages(
@@ -51,6 +53,7 @@ generate_messages(
 
 find_package(PCL 1.7 REQUIRED)
 find_package(Boost 1.54 REQUIRED)
+find_package(octomap REQUIRED)
 
 catkin_package(
   INCLUDE_DIRS
@@ -60,8 +63,11 @@ catkin_package(
 )
 
 include_directories(
+  include
   ${catkin_INCLUDE_DIRS}
-  src
+  ${EIGEN3_INCLUDE_DIR}
+  ${OpenCV_INCLUDE_DIRS}
+  ${OCTOMAP_INCLUDE_DIRS}
 )
 
 find_package(OpenCV)
@@ -76,9 +82,13 @@ set(control_source
 )
 
 set(mapper_source
-    src/mapper/octomap/octoMapgen.cpp
-    src/mapper/octomap/octoMapgen.h
-)
+    #src/mapper/octomap/octoMapgen.cpp
+    #src/mapper/octomap/octoMapgen.h
+#    include/unavlib/convt.h
+#    include/unavlib/convt.cpp
+#    include/unavlib/others.h
+#    include/unavlib/others.cpp
+) 
 
 set(pathgen_source
     src/pathgen/local_pc_registration/local_pc_registration.cpp
@@ -99,16 +109,38 @@ target_link_libraries(control
     ${OpenCV_LIBRARIES}
 )
 
-#add_executable(CE558_mapper src/mapper/mapper.cpp ${mapper_source})
-#add_dependencies(CE558_mapper CE558_Team2_generate_messages_cpp)
-#target_link_libraries(CE558_mapper
-#    ${catkin_LIBRARIES}
-#    ${OpenCV_LIBRARIES}
-#)
-
-add_executable(CE558_pathgen src/pathgen/pathgen.cpp ${pathgen_source})
-add_dependencies(CE558_pathgen CE558_Team2_generate_messages_cpp)
-target_link_libraries(CE558_pathgen
+add_executable(mapper src/mapper/mapper.cpp ${mapper_source})
+add_dependencies(mapper CE558_Team2_generate_messages_cpp)
+target_link_libraries(mapper
     ${catkin_LIBRARIES}
     ${OpenCV_LIBRARIES}
 )
+
+add_executable(tester src/mapper/tester.cpp )
+add_dependencies(tester CE558_Team2_generate_messages_cpp)
+target_link_libraries(tester
+    ${catkin_LIBRARIES}
+    ${OpenCV_LIBRARIES}
+)
+
+add_executable(tester_octomap_path src/mapper/tester_octomap_pathgen.cpp )
+add_dependencies(tester_octomap_path CE558_Team2_generate_messages_cpp)
+target_link_libraries(tester_octomap_path
+    ${catkin_LIBRARIES}
+    ${OpenCV_LIBRARIES}
+    ${OCTOMAP_LIBRARIES}
+)
+
+# add_executable(tester2 src/mapper/tester2.cpp )
+# add_dependencies(tester2 CE558_Team2_generate_messages_cpp)
+# target_link_libraries(tester2
+#     ${catkin_LIBRARIES}
+#     ${OpenCV_LIBRARIES}
+# )
+
+#add_executable(CE558_pathgen src/pathgen/pathgen.cpp ${pathgen_source})
+#add_dependencies(CE558_pathgen CE558_Team2_generate_messages_cpp)
+#target_link_libraries(CE558_pathgen
+#    ${catkin_LIBRARIES}
+#    ${OpenCV_LIBRARIES}
+#)

@@ -78,9 +78,15 @@ def tf_pub():
 def model_pub():
     global pose
     msg = PoseStamped()
-    msg.pose.position.x = pose.position.x - 1.8
+    msg.pose.position.x = pose.position.x
     msg.pose.position.y = pose.position.y
-    msg.pose.position.z = pose.position.z - 0.1
+    msg.pose.position.z = pose.position.z
+
+    msg.pose.orientation.x = pose.orientation.x
+    msg.pose.orientation.y = pose.orientation.y
+    msg.pose.orientation.z = pose.orientation.z
+    msg.pose.orientation.w = pose.orientation.w
+
     msg.header.stamp = rospy.Time.now()
     msg.header.frame_id = "map"
     pub = rospy.Publisher("/UAV", PoseStamped, queue_size=10)

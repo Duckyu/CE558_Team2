@@ -1,13 +1,10 @@
-/** @file splitter.h
-    @date 2018/12
-    @author Seungwon Song
-    @brief  Generate node which contain sensor data
-*/
 
 #include <ros/ros.h>
 #include <math.h>
 #include <iostream>
 #include <sstream>
+
+#include <tf/transform_listener.h>
 
 #include <std_msgs/Header.h>
 #include <std_msgs/Int32.h>
@@ -30,6 +27,7 @@
 #include <pcl/filters/passthrough.h>
 #include <pcl_conversions/pcl_conversions.h>
 #include <pcl_ros/transforms.h>
+
 #include <unavlib/convt.h>
 #include <unavlib/others.h>
 
@@ -90,20 +88,21 @@ public:
 
   ros::Time last_pc_added;
   geometry_msgs::PoseStamped pose_previous, pose_current;
+  bool termination_flag;
 
- CE558_Team2::points_node msg2node(sensor_msgs::PointCloud2 points,
-                                   geometry_msgs::PoseStamped pose_previous,
-                                   geometry_msgs::PoseStamped pose_current);
+  CE558_Team2::points_node msg2node(sensor_msgs::PointCloud2 points,
+                                    geometry_msgs::PoseStamped pose_previous,
+                                    geometry_msgs::PoseStamped pose_current);
   pcl::PointCloud<pcl::PointXYZ> transform(CE558_Team2::points_node node);
   // void node2pcl(CE558_Team2::points_node node);
   void rangeFiltering(CE558_Team2::points_node node,
                       int axis, double location_low, double location_high);
-  void add(sensor_msgs::PointCloud2 node);
+  void add(CE558_Team2::points_node node);
   void voxelize(pcl::PointCloud<pcl::PointXYZ> pc);
   void normalVectorEstimate(pcl::PointCloud<pcl::PointXYZ> pc);
   void samplingBasePathGen();
   // void checkCollision(geometry_msgs::PoseStamped poses[], octomap::OcTree octomap);
-  void pubPath();
+  void pubPath(geometry_msgs::PoseStamped poses[]);
 
   /// For main function
   void spinOnce();

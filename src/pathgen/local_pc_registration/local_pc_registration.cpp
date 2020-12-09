@@ -27,7 +27,7 @@ CE558_Team2::points_node exploration_local_map::msg2node(sensor_msgs::PointCloud
   CE558_Team2::points_node pointsNode;
 //////////////////////
   pcl::PointCloud<pcl::PointXYZ> cloud_dst;
-  pcl::fromROSMsg(cloudmsg, cloud_dst);
+  pcl::fromROSMsg(points, cloud_dst);
 
   pcl::PointCloud<pcl::PointXYZ>::Ptr cloud (new pcl::PointCloud<pcl::PointXYZ>);
   pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_filtered (new pcl::PointCloud<pcl::PointXYZ>);
@@ -49,7 +49,18 @@ CE558_Team2::points_node exploration_local_map::msg2node(sensor_msgs::PointCloud
 }
 
 pcl::PointCloud<pcl::PointXYZ> exploration_local_map::transform(CE558_Team2::points_node node){
-  
+  // try{
+  //   listener.lookupTransform("/map", "/base_link",
+  //                             ros::Time(0), uav_transform);
+  //   listener.lookupTransform("/base_link", "/up_camera_link",
+  //                             ros::Time(0), upCam_transform);
+  //   listener.lookupTransform("/base_link", "/front_camera_link",
+  //                             ros::Time(0), frontCam_transform);
+  // }
+  // catch (tf::TransformException &ex) {
+  //   ROS_ERROR("%s",ex.what());
+  //   ros::Duration(1.0).sleep();
+  // }
   pcl::PointCloud<pcl::PointXYZ>::Ptr ptr_transformed(new pcl::PointCloud<pcl::PointXYZ>);
 
   Eigen::Matrix4f trans;
@@ -58,10 +69,8 @@ pcl::PointCloud<pcl::PointXYZ> exploration_local_map::transform(CE558_Team2::poi
   return *ptr_transformed;
 }
 
-void exploration_local_map::add(sensor_msgs::PointCloud2 node){
-  CE558_Team2::points_node temp;
-  temp = msg2node(node.node_sensor);
-  pc_transformed = transform(temp);
+void exploration_local_map::add(CE558_Team2::points_node node){
+  pc_transformed = transform(node);
   pc_accumulated += pc_transformed;
 }
 
@@ -80,7 +89,7 @@ pcl::PointCloud<pcl::PointXYZ> exploration_local_map::voxelize(pcl::PointCloud<p
 
 
 pcl::PointCloud<pcl::Normal> exploration_local_map::normalVectorEstimate(pcl::PointCloud<pcl::PointXYZ> pc){
-  pcl::PointCloud<pcl::PointXYZ>::Ptr cloud (new pcl::PointCloud<pcl::PointXYZ>);
+  pcl::PointCloud<pcl::PointXYZ>::Ptr cloud (new pcl::PointCloud<pcl::PointXYZ>());
   *cloud = pc;
 
   // Create the normal estimation class, and pass the input dataset to it
@@ -93,7 +102,7 @@ pcl::PointCloud<pcl::Normal> exploration_local_map::normalVectorEstimate(pcl::Po
   ne.setSearchMethod (tree);
 
   // Output datasets
-  pcl::PointCloud<pcl::Normal>::Ptr cloud_normals (new pcl::PointCloud<pcl::Normal>);
+  pcl::PointCloud<pcl::Normal>::Ptr cloud_normals (new pcl::PointCloud<pcl::Normal>());
 
   // Use all neighbors in a sphere of radius 3cm
   ne.setRadiusSearch (0.03);
@@ -124,13 +133,13 @@ void exploration_local_map::samplingBasePathGen(){
   }  
 }
 // void exploration_local_map::checkCollision(geometry_msgs::PoseStamped poses[], octomap::OcTree octomap);
-void exploration_local_map::pubPath(geometry_msgs::PoseStamped poses[]){
+void exploration_local_map::pubPath(){
   // checkCollision()
   termination_flag = false;
   last_pc_added = ros::Time::now();
   CE558_Team2::local_path path;
   path.request.path_size = poses.size();
-  path.request.poses = poses;
+  path.request.poses = pose_path;
   srv_local_path.call(path);
   previous_pc_accumulated.clear();
   previous_pc_accumulated = pc_accumulated;
@@ -142,13 +151,20 @@ void exploration_local_map::pubPath(geometry_msgs::PoseStamped poses[]){
 }
 
 void exploration_local_map::spinOnce(){
+
+  tf::TransformListener listener;
+  tf::StampedTransform uav_transform;
+  tf::StampedTransform upCam_transform;
+  tf::StampedTransform frontCam_transform;
+
+
   if (!termination_flag){
     add(front_);
     add(up_);
   }
   else{
     samplingBasePathGen();
-    pubPath();
+    pubPath(pose_path);
   }
 }
 
@@ -156,7 +172,7 @@ void exploration_local_map::spinOnce(){
 
 
 
-
+////////////////////Eigen::Vector4f centroid; pcl::compute3DCentroid (*cloud, centroid);
 
 
 

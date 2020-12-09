@@ -21,10 +21,11 @@ bool exploration_control::arrival_check(nav_msgs::Odometry UAV_position, geometr
 	if(distance(UAV_pose.position, destination.position) < arrival_dist_thres &&
 	   Quat2Angle(UAV_pose.orientation).z - Quat2Angle(destination.orientation).z < arrival_yaw_thres)
 	{
-		if(ros::Time::now() - initial_arrival > ros::Duration(1.0))
-		{
-			check_result = true;
-		}
+		// if(ros::Time::now() - initial_arrival > ros::Duration(1.0))
+		// {
+		// 	check_result = true;
+		// }
+        check_result = true;
 	}
 	else initial_arrival = ros::Time::now();
 
