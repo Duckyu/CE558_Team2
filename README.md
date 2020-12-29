@@ -1,7 +1,7 @@
 # CE558_Team2 Lecture project
  Online active 3d reconstruction of structure.
 ## To Do List
-- [ ] Cumulated map generation
+- [x] Cumulated map generation
 - [ ] updated pointcloud detection
 - [ ] randomly select the pointcloud for waypoint generation
 - [ ] waypoint elimination
