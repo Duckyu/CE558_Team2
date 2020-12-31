@@ -3,6 +3,7 @@
 import rospy
 import sys
 from mavros_msgs.srv import CommandBool, SetMode
+from CE558_Team2.srv import *
 from scipy.spatial.transform import Rotation as R
 from std_msgs.msg import String
 from mavros_msgs.msg import PositionTarget, State, ExtendedState
@@ -16,10 +17,11 @@ position_mask = 0b101111111000
 velocity_mask = 0b011111000111
 max_velocity = 2.0
 max_yaw_rate = 1.570796
-angle_snap_resolution = 90 # in degree
+angle_snap_resolution = 1.570796 # in rad
 height_snap_resolution = 0.25 # in meter
 takeoff_height = 1.5
 # mode = 'null'
+current_yaw = 0
 setpoint_msg = PositionTarget()
 hover_flag = False
 hover = PositionTarget()
@@ -48,18 +50,28 @@ def takeoff():
     setpoint_msg.type_mask = position_mask
     setpoint_msg.position = pose.pose.position
     setpoint_msg.position.z = setpoint_msg.position.z + takeoff_height
+    setpoint_msg.yaw = current_yaw
     move(setpoint_msg)
     arming_srv = rospy.ServiceProxy('/mavros/cmd/arming', CommandBool)#mavros_msgs.srv.
     arm_result = arming_srv(True)
     mode_srv = rospy.ServiceProxy('/mavros/set_mode', SetMode)#mavros_msgs.srv.
     mode_result = mode_srv(0,"OFFBOARD")
 
+def path_require_():
+    hover_flag = True
+    path_require_srv = rospy.ServiceProxy('/path_require', path_require)
+    resp = path_require_srv()
+
 def joy_callback(joy_data): # self, 
     global setpoint_msg
     global pose
+    global hover
     global hover_flag
+    global current_yaw
     #joy_data.axes[]
     #joy_data.buttons[]
+    hover_flag = False
+
     if joy_data.buttons[10] == 1:
         if ext_state.landed_state == ExtendedState().LANDED_STATE_ON_GROUND:
             rospy.loginfo("attempting takeoff")
@@ -68,30 +80,26 @@ def joy_callback(joy_data): # self,
             rospy.loginfo("already flying : %lf", pose.pose.position.z)
     elif joy_data.axes[6] != 0 or joy_data.axes[7] != 0:
         setpoint_msg.type_mask = position_mask
-        rospy.loginfo("type_mask : %d", setpoint_msg.type_mask)
+#        rospy.loginfo("type_mask : %d", setpoint_msg.type_mask)
         if joy_data.axes[6] != 0:
-            current_quat = [pose.pose.orientation.x, pose.pose.orientation.y, pose.pose.orientation.z, pose.pose.orientation.w]
-            current_rmat = R.from_quat(current_quat)
-            current_angle = current_rmat.as_euler('zyx', degrees=True)
-            yaw_target = current_angle[0]+(joy_data.axes[6] == 1)*angle_snap_resolution-current_angle[0]%angle_snap_resolution
+            yaw_target = current_yaw+(joy_data.axes[6] == 1)*angle_snap_resolution-current_yaw%angle_snap_resolution
             setpoint_msg.yaw = yaw_target
             setpoint_msg.position = pose.pose.position
         elif joy_data.axes[7] != 0:
-            current_quat = [pose.pose.orientation.x, pose.pose.orientation.y, pose.pose.orientation.z, pose.pose.orientation.w]
-            current_rmat = R.from_quat(current_quat)
-            current_angle = current_rmat.as_euler('zyx', degrees=True)
-            setpoint_msg.yaw = current_angle[0]
+            setpoint_msg.yaw = current_yaw
             setpoint_msg.position = pose.pose.position
             setpoint_msg.position.z =  pose.pose.position.z + height_snap_resolution * joy_data.axes[7]
     elif joy_data.axes[0] != 0 or joy_data.axes[1] != 0 or joy_data.axes[3] != 0 or joy_data.axes[4] != 0:
         setpoint_msg.type_mask = velocity_mask
-        rospy.loginfo("type_mask : %d", setpoint_msg.type_mask)
+#        rospy.loginfo("type_mask : %d", setpoint_msg.type_mask)
         setpoint_msg.velocity.x = max_velocity * joy_data.axes[4]
         setpoint_msg.velocity.y = max_velocity * joy_data.axes[3]
         setpoint_msg.velocity.z = max_velocity * joy_data.axes[1]
         setpoint_msg.yaw_rate = max_velocity * joy_data.axes[0]
-    else:
+    elif joy_data.buttons[1] == 1:
         hover_flag = True
+    elif joy_data.buttons[7] == 1:
+        path_require_()
 
         
 def state_callback(data):# self, 
@@ -104,13 +112,22 @@ def ext_state_callback(data):# self,
 
 def local_position_callback(data): # self, 
     global pose
+    global setpoint_msg
+    global hover
     global hover_flag
     pose = data
+    current_quat = [pose.pose.orientation.x, pose.pose.orientation.y, pose.pose.orientation.z, pose.pose.orientation.w]
+    current_rmat = R.from_quat(current_quat)
+    current_angle = current_rmat.as_euler('zyx', degrees=True)
+    current_yaw = current_angle[0]
     if hover_flag == True:
         hover_flag = False
         hover.type_mask = position_mask
         hover.position = pose.pose.position
-    # rospy.loginfo("poss x,y,z: %lf, %lf, %lf", pose.pose.position.x, pose.pose.position.y, pose.pose.position.z)
+        hover.yaw = current_yaw
+        setpoint_msg.type_mask = position_mask
+        setpoint_msg = hover
+#     rospy.loginfo("poss x,y,z: %lf, %lf, %lf", pose.pose.position.x, pose.pose.position.y, pose.pose.position.z)
 
 if __name__ == '__main__':
     # global pose
