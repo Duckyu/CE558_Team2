@@ -140,7 +140,7 @@ void exploration_control::circle()
 		circle_test.orientation = pix_home.orientation;
 		if (arrival_check(pix_local, circle_test)){
 			control_mode = wait_control;
-			CE558_Team2::path_terminate term;
+			n_cpp::path_terminate term;
 			path_termination.call(term);
 		}
 	}

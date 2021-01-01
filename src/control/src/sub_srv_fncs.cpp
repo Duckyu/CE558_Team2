@@ -11,8 +11,8 @@ void exploration_control::cb_pix_home(const mavros_msgs::HomePosition::ConstPtr 
     trans_home_quat.z = pix_home.orientation.y;
     trans_home_quat.w = pix_home.orientation.x;
 }
-bool exploration_control::fn_mission_start(CE558_Team2::mission_start::Request &request,
-					  			   		   CE558_Team2::mission_start::Response &response)
+bool exploration_control::fn_mission_start(n_cpp::mission_start::Request &request,
+					  			   		   n_cpp::mission_start::Response &response)
 {
 	if(mission_started == false)
 	{
@@ -28,14 +28,14 @@ bool exploration_control::fn_mission_start(CE558_Team2::mission_start::Request &
 	}
 }
 
-bool exploration_control::fn_init_step(CE558_Team2::init_step::Request &request,
-                  					   CE558_Team2::init_step::Response &response){
+bool exploration_control::fn_init_step(n_cpp::init_step::Request &request,
+                  					   n_cpp::init_step::Response &response){
 	init_radius = request.init_radius;
 	control_mode = initiation;
 	response.result = true;
 }
-bool exploration_control::fn_local_path(CE558_Team2::local_path::Request &request,
-                   						CE558_Team2::local_path::Response &response){
+bool exploration_control::fn_local_path(n_cpp::local_path::Request &request,
+                   						n_cpp::local_path::Response &response){
 	// log
     loglog ="local path received";
     log_pub_ros_info(LOG_ERROR,loglog);
@@ -47,13 +47,13 @@ bool exploration_control::fn_local_path(CE558_Team2::local_path::Request &reques
 	received_path = request.local_path;
 	response.result = true;
 }
-bool exploration_control::fn_global_path(CE558_Team2::global_path::Request &request,
-                   						 CE558_Team2::global_path::Response &response){
+bool exploration_control::fn_global_path(n_cpp::global_path::Request &request,
+                   						 n_cpp::global_path::Response &response){
 	path_size = request.path_size;
 	received_path = request.global_path;
 	response.result = true;
 }
-bool exploration_control::fn_end(CE558_Team2::end::Request &request,
-            					 CE558_Team2::end::Response &response){
+bool exploration_control::fn_end(n_cpp::end::Request &request,
+            					 n_cpp::end::Response &response){
 
 }

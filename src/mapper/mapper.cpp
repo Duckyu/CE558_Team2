@@ -22,11 +22,11 @@
 #include <geometry_msgs/Point.h>
 #include <geometry_msgs/Quaternion.h>
 
-#include <CE558_Team2/points_node.h>
-#include <CE558_Team2/points_nodes.h>
-#include <CE558_Team2/path_terminate.h>
-#include <CE558_Team2/local_path.h>
-#include <CE558_Team2/global_path.h>
+#include <n_cpp/points_node.h>
+#include <n_cpp/points_nodes.h>
+#include <n_cpp/path_terminate.h>
+#include <n_cpp/local_path.h>
+#include <n_cpp/global_path.h>
 
 #include <pcl/conversions.h>
 #include <pcl/filters/uniform_sampling.h>
@@ -46,8 +46,8 @@
 
 pcl::PointCloud<pcl::PointXYZ>::Ptr ptr_pc_accumulated(new pcl::PointCloud<pcl::PointXYZ>);
 // sensor_msgs::PointCloud2 test;
-CE558_Team2::points_node up_;
-CE558_Team2::points_node front_;
+n_cpp::points_node up_;
+n_cpp::points_node front_;
 geometry_msgs::PoseStamped pose_previous, pose_current;
 
 
@@ -85,13 +85,13 @@ Eigen::Matrix4f geoPose2eigen(geometry_msgs::Pose geoPose)
 
 
 
-CE558_Team2::points_node msg2node(sensor_msgs::PointCloud2 points,
+n_cpp::points_node msg2node(sensor_msgs::PointCloud2 points,
                                   geometry_msgs::PoseStamped pose_previous,
                                   geometry_msgs::PoseStamped pose_current){
   double points_time = points.header.stamp.toSec();
   double prev_pose_time = pose_previous.header.stamp.toSec();
   double curr_pose_time = pose_current.header.stamp.toSec();
-  CE558_Team2::points_node pointsNode;
+  n_cpp::points_node pointsNode;
 ////////////////////////
   pcl::PointCloud<pcl::PointXYZ>::Ptr ptr_cloud_dst (new pcl::PointCloud<pcl::PointXYZ>());
   pcl::fromROSMsg(points, *ptr_cloud_dst);
@@ -150,7 +150,7 @@ void cb_model_state(const geometry_msgs::PoseStamped::ConstPtr& msg){
 }  
 
 
-pcl::PointCloud<pcl::PointXYZ> transform(CE558_Team2::points_node node, int direction){
+pcl::PointCloud<pcl::PointXYZ> transform(n_cpp::points_node node, int direction){
   // try{
   //   listener.lookupTransform("/map", "/base_link",
   //                             ros::Time(0), uav_transform);

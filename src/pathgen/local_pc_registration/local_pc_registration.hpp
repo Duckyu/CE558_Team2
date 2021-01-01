@@ -11,11 +11,11 @@
 #include <sensor_msgs/PointCloud2.h>
 #include <nav_msgs/Odometry.h>
 #include <gazebo_msgs/ModelStates.h>
-#include <CE558_Team2/points_node.h>
-#include <CE558_Team2/points_nodes.h>
-#include <CE558_Team2/path_terminate.h>
-#include <CE558_Team2/local_path.h>
-#include <CE558_Team2/global_path.h>
+#include <n_cpp/points_node.h>
+#include <n_cpp/points_nodes.h>
+#include <n_cpp/path_terminate.h>
+#include <n_cpp/local_path.h>
+#include <n_cpp/global_path.h>
 
 #include <pcl/conversions.h>
 #include <pcl/filters/uniform_sampling.h>
@@ -48,8 +48,8 @@ private:
   // ros::Subscriber sub_octoMap;
 
   ros::ServiceServer srv_path_termination;
-  bool fn_path_terminate(CE558_Team2::path_terminate::Request &request,
-                         CE558_Team2::path_terminate::Response &response);
+  bool fn_path_terminate(n_cpp::path_terminate::Request &request,
+                         n_cpp::path_terminate::Response &response);
 
 
   // octomap::OcTree * m_octree;
@@ -71,11 +71,11 @@ public:
 
   ros::NodeHandle m_nh;/**< Ros node handler */
 
-  CE558_Team2::points_node up_;
-  CE558_Team2::points_node front_;
+  n_cpp::points_node up_;
+  n_cpp::points_node front_;
 
 
-  CE558_Team2::points_nodes previous;
+  n_cpp::points_nodes previous;
   pcl::PointCloud<pcl::PointXYZ> previous_pc_accumulated;
   pcl::PointCloud<pcl::PointXYZ> pc_accumulated;
 
@@ -90,14 +90,14 @@ public:
   geometry_msgs::PoseStamped pose_previous, pose_current;
   bool termination_flag;
 
-  CE558_Team2::points_node msg2node(sensor_msgs::PointCloud2 points,
+  n_cpp::points_node msg2node(sensor_msgs::PointCloud2 points,
                                     geometry_msgs::PoseStamped pose_previous,
                                     geometry_msgs::PoseStamped pose_current);
-  pcl::PointCloud<pcl::PointXYZ> transform(CE558_Team2::points_node node);
-  // void node2pcl(CE558_Team2::points_node node);
-  void rangeFiltering(CE558_Team2::points_node node,
+  pcl::PointCloud<pcl::PointXYZ> transform(n_cpp::points_node node);
+  // void node2pcl(n_cpp::points_node node);
+  void rangeFiltering(n_cpp::points_node node,
                       int axis, double location_low, double location_high);
-  void add(CE558_Team2::points_node node);
+  void add(n_cpp::points_node node);
   void voxelize(pcl::PointCloud<pcl::PointXYZ> pc);
   void normalVectorEstimate(pcl::PointCloud<pcl::PointXYZ> pc);
   void samplingBasePathGen();
@@ -112,8 +112,8 @@ public:
     sub_up_points = nh.subscribe<nav_msgs::Odometry>("/camera_up/depth/points", 1, &exploration_local_map::cb_points_up,this);
     sub_model = nh.subscribe<geometry_msgs::PoseStamped>("/UAV", 1, &exploration_local_map::cb_model_state,this);
 
-    srv_local_path = nh.serviceClient<CE558_Team2::local_path>("/exploration_control/local_path");
-    srv_global_path = nh.serviceClient<CE558_Team2::global_path>("/exploration_control/global_path");
+    srv_local_path = nh.serviceClient<n_cpp::local_path>("/exploration_control/local_path");
+    srv_global_path = nh.serviceClient<n_cpp::global_path>("/exploration_control/global_path");
 
     srv_path_termination = nh.advertiseService("/exploration_control/path_terminate", &exploration_local_map::fn_path_terminate, this);
   }

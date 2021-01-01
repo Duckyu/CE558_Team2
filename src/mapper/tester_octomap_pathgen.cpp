@@ -26,13 +26,13 @@
 #include <geometry_msgs/Point.h>
 #include <geometry_msgs/Quaternion.h>
 
-// #include <CE558_Team2/points_node.h>
-// #include <CE558_Team2/points_nodes.h>
-// #include <CE558_Team2/path_terminate.h>
-// #include <CE558_Team2/local_path.h>
-// #include <CE558_Team2/global_path.h>
-#include <CE558_Team2/go_get_it.h>
-#include <CE558_Team2/path_require.h>
+// #include <n_cpp/points_node.h>
+// #include <n_cpp/points_nodes.h>
+// #include <n_cpp/path_terminate.h>
+// #include <n_cpp/local_path.h>
+// #include <n_cpp/global_path.h>
+#include <n_cpp/go_get_it.h>
+#include <n_cpp/path_require.h>
 
 #include <pcl/common/common_headers.h>
 #include <pcl/features/normal_3d.h>
@@ -100,8 +100,8 @@ void setup_octomap(){
   m_octree->setProbMiss(octomap_miss);
 }
 
-CE558_Team2::go_get_it move_cmd_send(){
-  CE558_Team2::go_get_it srv;
+n_cpp::go_get_it move_cmd_send(){
+  n_cpp::go_get_it srv;
   nav_msgs::Path local_path;
 
   ROS_INFO("path generation start!");
@@ -256,20 +256,20 @@ CE558_Team2::go_get_it move_cmd_send(){
         }
       }
     }
+    pointIdxNKNSearch.clear();
+    pointNKNSquaredDistance.clear();
   }
   local_path.header.frame_id = "map";
   srv.request.path = local_path;
   ptr_pc_local->clear();
   ptr_pc_local_normal->clear();
-  pointIdxNKNSearch->clear();
-  pointNKNSquaredDistance->clear();
   local_map = true;
   ROS_INFO("path generation end!");
   return srv;
 }
 
-bool path_require(CE558_Team2::path_require::Request  &req,
-                  CE558_Team2::path_require::Response &res)
+bool path_require(n_cpp::path_require::Request  &req,
+                  n_cpp::path_require::Response &res)
 {
   geometry_msgs::Pose curr_UAV = posepose.pose;
   local_map = false;
@@ -482,7 +482,7 @@ int main(int argc, char **argv)
     ros::Subscriber sub_tf = n.subscribe("/tf", 1000, cb_tf);
     ros::Subscriber sub_st_tf = n.subscribe("/tf_static", 1000, cb_st_tf);
 
-    ros::ServiceClient move_cmd_client = n.serviceClient<CE558_Team2::go_get_it>("go_get_it");
+    ros::ServiceClient move_cmd_client = n.serviceClient<n_cpp::go_get_it>("go_get_it");
     ros::ServiceServer pathgen_cmd_service = n.advertiseService("path_require", path_require);
 
     ros::Rate loop_rate(20);
@@ -534,7 +534,7 @@ int main(int argc, char **argv)
 
       // ROS_INFO("call move?");
       if (call_move){
-        CE558_Team2::go_get_it srv;
+        n_cpp::go_get_it srv;
         srv = move_cmd_send();
         // move_cmd_client.call(srv);
         local_path_pub.publish(srv.request.path);

@@ -25,11 +25,11 @@
 #include <geometry_msgs/Point.h>
 #include <geometry_msgs/Quaternion.h>
 
-// #include <CE558_Team2/points_node.h>
-// #include <CE558_Team2/points_nodes.h>
-// #include <CE558_Team2/path_terminate.h>
-// #include <CE558_Team2/local_path.h>
-// #include <CE558_Team2/global_path.h>
+// #include <n_cpp/points_node.h>
+// #include <n_cpp/points_nodes.h>
+// #include <n_cpp/path_terminate.h>
+// #include <n_cpp/local_path.h>
+// #include <n_cpp/global_path.h>
 
 #include <pcl/common/common_headers.h>
 #include <pcl/features/normal_3d.h>

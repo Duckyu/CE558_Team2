@@ -38,7 +38,7 @@ bool exploration_control::map_termination(){
 
 void exploration_control::log_pub_ros_info(int color, std::string log)
 {
-	CE558_Team2::log_data pix2uav_log_data;
+	n_cpp::log_data pix2uav_log_data;
     pix2uav_log_data.string_color = color;
     pix2uav_log_data.log_string = log;
 

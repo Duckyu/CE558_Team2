@@ -40,15 +40,15 @@
 #include "std_msgs/UInt16.h"
 
 // custom UAV Mission
-#include "CE558_Team2/mission_start.h"
-#include "CE558_Team2/init_step.h"
-#include "CE558_Team2/local_path.h"
-#include "CE558_Team2/global_path.h"
-#include "CE558_Team2/end.h"
-#include "CE558_Team2/path_terminate.h"
+#include "n_cpp/mission_start.h"
+#include "n_cpp/init_step.h"
+#include "n_cpp/local_path.h"
+#include "n_cpp/global_path.h"
+#include "n_cpp/end.h"
+#include "n_cpp/path_terminate.h"
 
 
-#include <CE558_Team2/log_data.h>
+#include <n_cpp/log_data.h>
 
 class exploration_control
 {
@@ -97,16 +97,16 @@ class exploration_control
     void cb_pix_extstate(const mavros_msgs::ExtendedState::ConstPtr& msg);
     void cb_pix_local(const nav_msgs::Odometry::ConstPtr &msg);
     void cb_pix_home(const mavros_msgs::HomePosition::ConstPtr &msg);
-    bool fn_mission_start(CE558_Team2::mission_start::Request &request,
-                          CE558_Team2::mission_start::Response &response);
-    bool fn_init_step(CE558_Team2::init_step::Request &request,
-                        CE558_Team2::init_step::Response &response);
-    bool fn_local_path(CE558_Team2::local_path::Request &request,
-                           CE558_Team2::local_path::Response &response);
-    bool fn_global_path(CE558_Team2::global_path::Request &request,
-                           CE558_Team2::global_path::Response &response);
-    bool fn_end(CE558_Team2::end::Request &request,
-                           CE558_Team2::end::Response &response);
+    bool fn_mission_start(n_cpp::mission_start::Request &request,
+                          n_cpp::mission_start::Response &response);
+    bool fn_init_step(n_cpp::init_step::Request &request,
+                        n_cpp::init_step::Response &response);
+    bool fn_local_path(n_cpp::local_path::Request &request,
+                           n_cpp::local_path::Response &response);
+    bool fn_global_path(n_cpp::global_path::Request &request,
+                           n_cpp::global_path::Response &response);
+    bool fn_end(n_cpp::end::Request &request,
+                           n_cpp::end::Response &response);
 
 
     //control capsule function
@@ -243,7 +243,7 @@ class exploration_control
         local_setpoint_raw_pub = nh.advertise<mavros_msgs::PositionTarget>("/mavros/setpoint_raw/local", 10);
 
         ///log topic pub
-        pub_log_data = nh.advertise<CE558_Team2::log_data>("/exploration_control/log_data", 30);
+        pub_log_data = nh.advertise<n_cpp::log_data>("/exploration_control/log_data", 30);
 
         ///mission time pub
         flight_time_pub = nh.advertise<std_msgs::Float64>("/exploration_control/flight_time", 30);
@@ -258,7 +258,7 @@ class exploration_control
         cmdArming = nh.serviceClient<mavros_msgs::CommandBool>("/mavros/cmd/arming");
         set_mode = nh.serviceClient<mavros_msgs::SetMode>("/mavros/set_mode");
         set_home = nh.serviceClient<mavros_msgs::CommandHome>("/mavros/cmd/set_home");
-        path_termination = nh.serviceClient<CE558_Team2::path_terminate>("/exploration_control/path_terminate");
+        path_termination = nh.serviceClient<n_cpp::path_terminate>("/exploration_control/path_terminate");
 
         ///UAV control service server
         srv_mission_start = nh.advertiseService("/exploration_control/mission_start", &exploration_control::fn_mission_start, this);

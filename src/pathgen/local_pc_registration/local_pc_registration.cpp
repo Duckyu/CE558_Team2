@@ -13,18 +13,18 @@ void exploration_local_map::cb_model_state(const geometry_msgs::PoseStamped::Con
   pose_current = *msg;
 }
 
-bool exploration_local_map::fn_path_terminate(CE558_Team2::path_terminate::Request &request,
-                       CE558_Team2::path_terminate::Response &response){
+bool exploration_local_map::fn_path_terminate(n_cpp::path_terminate::Request &request,
+                       n_cpp::path_terminate::Response &response){
   termination_flag = true;
 }
 
-CE558_Team2::points_node exploration_local_map::msg2node(sensor_msgs::PointCloud2 points,
+n_cpp::points_node exploration_local_map::msg2node(sensor_msgs::PointCloud2 points,
                                                          geometry_msgs::PoseStamped pose_previous,
                                                          geometry_msgs::PoseStamped pose_current){
   double points_time = points.header.stamp.toSec();
   double prev_pose_time = pose_previous.header.stamp.toSec();
   double curr_pose_time = pose_current.header.stamp.toSec();
-  CE558_Team2::points_node pointsNode;
+  n_cpp::points_node pointsNode;
 //////////////////////
   pcl::PointCloud<pcl::PointXYZ> cloud_dst;
   pcl::fromROSMsg(points, cloud_dst);
@@ -48,7 +48,7 @@ CE558_Team2::points_node exploration_local_map::msg2node(sensor_msgs::PointCloud
   return pointsNode;
 }
 
-pcl::PointCloud<pcl::PointXYZ> exploration_local_map::transform(CE558_Team2::points_node node){
+pcl::PointCloud<pcl::PointXYZ> exploration_local_map::transform(n_cpp::points_node node){
   // try{
   //   listener.lookupTransform("/map", "/base_link",
   //                             ros::Time(0), uav_transform);
@@ -69,7 +69,7 @@ pcl::PointCloud<pcl::PointXYZ> exploration_local_map::transform(CE558_Team2::poi
   return *ptr_transformed;
 }
 
-void exploration_local_map::add(CE558_Team2::points_node node){
+void exploration_local_map::add(n_cpp::points_node node){
   pc_transformed = transform(node);
   pc_accumulated += pc_transformed;
 }
@@ -137,7 +137,7 @@ void exploration_local_map::pubPath(){
   // checkCollision()
   termination_flag = false;
   last_pc_added = ros::Time::now();
-  CE558_Team2::local_path path;
+  n_cpp::local_path path;
   path.request.path_size = poses.size();
   path.request.poses = pose_path;
   srv_local_path.call(path);

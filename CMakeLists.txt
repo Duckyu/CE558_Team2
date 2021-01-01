@@ -1,5 +1,5 @@
  cmake_minimum_required(VERSION 2.8.3)
-project(CE558_Team2)
+project(n_cpp)
 set(CMAKE_CONFIGURATION_TYPES "Release" CACHE STRING "" FORCE)
 add_compile_options(-std=c++17)
 
@@ -40,15 +40,14 @@ add_service_files(
   go_get_it.srv
   path_require.srv
 )
-
 generate_messages(
   DEPENDENCIES
   std_msgs
   geometry_msgs
   sensor_msgs
   nav_msgs
-#  CE558_Team2
-#  CE558_Team2_generate_messages_cpp
+  n_cpp
+#   n_cpp_generate_messages_cpp
 )
 
 find_package(PCL 1.7 REQUIRED)
@@ -103,28 +102,28 @@ set(pathgen_source
 # )
 
 add_executable(control src/control/UAV_control.cpp ${control_source})
-add_dependencies(control CE558_Team2_generate_messages_cpp)
+add_dependencies(control n_cpp_generate_messages_cpp)
 target_link_libraries(control
     ${catkin_LIBRARIES}
     ${OpenCV_LIBRARIES}
 )
 
 add_executable(mapper src/mapper/mapper.cpp ${mapper_source})
-add_dependencies(mapper CE558_Team2_generate_messages_cpp)
+add_dependencies(mapper n_cpp_generate_messages_cpp)
 target_link_libraries(mapper
     ${catkin_LIBRARIES}
     ${OpenCV_LIBRARIES}
 )
 
 add_executable(tester src/mapper/tester.cpp )
-add_dependencies(tester CE558_Team2_generate_messages_cpp)
+add_dependencies(tester n_cpp_generate_messages_cpp)
 target_link_libraries(tester
     ${catkin_LIBRARIES}
     ${OpenCV_LIBRARIES}
 )
 
 add_executable(tester_octomap_path src/mapper/tester_octomap_pathgen.cpp )
-add_dependencies(tester_octomap_path CE558_Team2_generate_messages_cpp)
+add_dependencies(tester_octomap_path n_cpp_generate_messages_cpp)
 target_link_libraries(tester_octomap_path
     ${catkin_LIBRARIES}
     ${OpenCV_LIBRARIES}
@@ -132,14 +131,14 @@ target_link_libraries(tester_octomap_path
 )
 
 # add_executable(tester2 src/mapper/tester2.cpp )
-# add_dependencies(tester2 CE558_Team2_generate_messages_cpp)
+# add_dependencies(tester2 n_cpp_generate_messages_cpp)
 # target_link_libraries(tester2
 #     ${catkin_LIBRARIES}
 #     ${OpenCV_LIBRARIES}
 # )
 
 #add_executable(CE558_pathgen src/pathgen/pathgen.cpp ${pathgen_source})
-#add_dependencies(CE558_pathgen CE558_Team2_generate_messages_cpp)
+#add_dependencies(CE558_pathgen n_cpp_generate_messages_cpp)
 #target_link_libraries(CE558_pathgen
 #    ${catkin_LIBRARIES}
 #    ${OpenCV_LIBRARIES}

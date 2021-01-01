@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package>
-  <name>CE558_Team2</name>
+  <name>n_cpp</name>
   <version>0.0.0</version>
-  <description>CE558_Team2</description>
+  <description>n_cpp</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag --> 
   <!-- Example:  -->
