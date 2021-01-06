@@ -101,26 +101,26 @@ set(pathgen_source
 #    src/pathgen/octomap/octoMapgen.hpp
 # )
 
-add_executable(control src/control/UAV_control.cpp ${control_source})
-add_dependencies(control n_cpp_generate_messages_cpp)
-target_link_libraries(control
-    ${catkin_LIBRARIES}
-    ${OpenCV_LIBRARIES}
-)
+# add_executable(control src/control/UAV_control.cpp ${control_source})
+# add_dependencies(control n_cpp_generate_messages_cpp)
+# target_link_libraries(control
+#     ${catkin_LIBRARIES}
+#     ${OpenCV_LIBRARIES}
+# )
 
-add_executable(mapper src/mapper/mapper.cpp ${mapper_source})
-add_dependencies(mapper n_cpp_generate_messages_cpp)
-target_link_libraries(mapper
-    ${catkin_LIBRARIES}
-    ${OpenCV_LIBRARIES}
-)
+# add_executable(mapper src/mapper/mapper.cpp ${mapper_source})
+# add_dependencies(mapper n_cpp_generate_messages_cpp)
+# target_link_libraries(mapper
+#     ${catkin_LIBRARIES}
+#     ${OpenCV_LIBRARIES}
+# )
 
-add_executable(tester src/mapper/tester.cpp )
-add_dependencies(tester n_cpp_generate_messages_cpp)
-target_link_libraries(tester
-    ${catkin_LIBRARIES}
-    ${OpenCV_LIBRARIES}
-)
+# add_executable(tester src/mapper/tester.cpp )
+# add_dependencies(tester n_cpp_generate_messages_cpp)
+# target_link_libraries(tester
+#     ${catkin_LIBRARIES}
+#     ${OpenCV_LIBRARIES}
+# )
 
 add_executable(tester_octomap_path src/mapper/tester_octomap_pathgen.cpp )
 add_dependencies(tester_octomap_path n_cpp_generate_messages_cpp)

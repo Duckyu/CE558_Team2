@@ -1,0 +1,21 @@
+graph
+	node_gen
+    local_map_gen
+    graph_srv
+    graph_cb
+mapper
+	octomap_gen
+	global_map_gen
+	feature_map_gen
+    mapper_srv
+    mapper_cb
+path
+    curv_normal_field	
+	path_sampler
+    path_optimizer
+    path_srv
+    path_cb
+control
+    traj_gen
+    control_srv
+    control_cb
