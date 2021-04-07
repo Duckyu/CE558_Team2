@@ -3,7 +3,7 @@
 import rospy
 import sys
 from mavros_msgs.srv import CommandBool, SetMode
-from CE558_Team2.srv import *
+from n_cpp.srv import *
 from scipy.spatial.transform import Rotation as R
 from std_msgs.msg import String
 from mavros_msgs.msg import PositionTarget, State, ExtendedState
@@ -57,10 +57,10 @@ def takeoff():
     mode_srv = rospy.ServiceProxy('/mavros/set_mode', SetMode)#mavros_msgs.srv.
     mode_result = mode_srv(0,"OFFBOARD")
 
-def path_require_():
-    hover_flag = True
-    path_require_srv = rospy.ServiceProxy('/path_require', path_require)
-    resp = path_require_srv()
+# def path_require_():
+#     hover_flag = True
+#     path_require_srv = rospy.ServiceProxy('/path_require', path_require)
+#     resp = path_require_srv()
 
 def joy_callback(joy_data): # self, 
     global setpoint_msg
@@ -98,8 +98,8 @@ def joy_callback(joy_data): # self,
         setpoint_msg.yaw_rate = max_velocity * joy_data.axes[0]
     elif joy_data.buttons[1] == 1:
         hover_flag = True
-    elif joy_data.buttons[7] == 1:
-        path_require_()
+#     elif joy_data.buttons[7] == 1:
+#         path_require_()
 
         
 def state_callback(data):# self, 
