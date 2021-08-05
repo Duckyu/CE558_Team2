@@ -1,21 +1,49 @@
 graph
 	node_gen
+        *RGB_pc_trans
     local_map_gen
     graph_srv
     graph_cb
+
 mapper
 	octomap_gen
-	global_map_gen
 	feature_map_gen
+	graph_gen
+	local_map_gen
+        * cov_condition
+        * dist_condition
+        * path_replanner_trigger
+        
+	global_map_gen
+        * registration
+        * registration_cancel(z)
+        * optimizer
+        * RGB
     mapper_srv
     mapper_cb
+
 path
-    curv_normal_field	
-	path_sampler
-    path_optimizer
+    curv_normal_field
+        curv
+        normal_estimation
+	path_gen
+        path_sampler
+            * feature map
+            * curv
+            * Monte Carlo
+        path_collision_check
+        path_filter
+        path_align
     path_srv
     path_cb
+    # path_optimizer
+
 control
-    traj_gen
+    traj_gen # Bezier? geometry?
+    controller
     control_srv
     control_cb
+
+general
+    general
+        * 

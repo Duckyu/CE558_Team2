@@ -1,0 +1,32 @@
+<sdf version='1.5'>
+  <model name='text_A'>
+    <link name='A'>
+      <collision name='A_inertia_collision'>
+        <pose frame=''>0 0 6.05 1.570796 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>0.2 0.2 0.2</scale>
+            <uri>model://text_description/meshes/A.stl</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name='A_inertia_visual'>
+        <pose frame=''>0 0 6.05 1.570796 -0 0</pose>
+        <geometry>
+          <mesh>
+            <scale>0.2 0.2 0.2</scale>
+            <uri>model://text_description/meshes/A.stl</uri>
+          </mesh>
+        </geometry>
+        <!--material>
+          <script>
+            <name>Gazebo/DarkGrey</name>
+            <uri>file://media/materials/scripts/gazebo.material</uri>
+          </script>
+        </material-->
+      </visual>
+      <kinematic>1</kinematic>
+      <velocity_decay/>
+    </link>
+  </model>
+</sdf>

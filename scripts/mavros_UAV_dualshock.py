@@ -3,7 +3,7 @@
 import rospy
 import sys
 from mavros_msgs.srv import CommandBool, SetMode
-from CE558_Team2.srv import *
+# from n_cpp.srv import *
 from scipy.spatial.transform import Rotation as R
 from std_msgs.msg import String
 from mavros_msgs.msg import PositionTarget, State, ExtendedState
@@ -35,32 +35,32 @@ ext_state = ExtendedState()
 # bool success
 # uint8 result
 def sub_setup():
-    joy_sub = rospy.Subscriber("/joy", Joy, joy_callback)
-    state_sub = rospy.Subscriber("/mavros/state", State, state_callback)
-    ext_state_sub = rospy.Subscriber("/mavros/extended_state", ExtendedState, ext_state_callback)
+    joy_sub            = rospy.Subscriber("/joy", Joy, joy_callback)
+    state_sub          = rospy.Subscriber("/mavros/state", State, state_callback)
+    ext_state_sub      = rospy.Subscriber("/mavros/extended_state", ExtendedState, ext_state_callback)
     local_position_sub = rospy.Subscriber("/mavros/local_position/pose", PoseStamped, local_position_callback)
 
 def move(control_msg):
-    control_pub = rospy.Publisher("/mavros/setpoint_raw/local", PositionTarget, queue_size=10)
+    control_pub        = rospy.Publisher("/mavros/setpoint_raw/local", PositionTarget, queue_size=10)
     control_pub.publish(control_msg)
 
 def takeoff():
     global pose
     # setpoint_msg = PositionTarget()
-    setpoint_msg.type_mask = position_mask
-    setpoint_msg.position = pose.pose.position
+    setpoint_msg.type_mask  = position_mask
+    setpoint_msg.position   = pose.pose.position
     setpoint_msg.position.z = setpoint_msg.position.z + takeoff_height
-    setpoint_msg.yaw = current_yaw
+    setpoint_msg.yaw        = current_yaw
     move(setpoint_msg)
-    arming_srv = rospy.ServiceProxy('/mavros/cmd/arming', CommandBool)#mavros_msgs.srv.
-    arm_result = arming_srv(True)
-    mode_srv = rospy.ServiceProxy('/mavros/set_mode', SetMode)#mavros_msgs.srv.
+    arming_srv  = rospy.ServiceProxy('/mavros/cmd/arming', CommandBool)#mavros_msgs.srv.
+    arm_result  = arming_srv(True)
+    mode_srv    = rospy.ServiceProxy('/mavros/set_mode', SetMode)#mavros_msgs.srv.
     mode_result = mode_srv(0,"OFFBOARD")
 
-def path_require_():
-    hover_flag = True
-    path_require_srv = rospy.ServiceProxy('/path_require', path_require)
-    resp = path_require_srv()
+# def path_require_():
+#     hover_flag = True
+#     path_require_srv = rospy.ServiceProxy('/path_require', path_require)
+#     resp = path_require_srv()
 
 def joy_callback(joy_data): # self, 
     global setpoint_msg
@@ -96,10 +96,15 @@ def joy_callback(joy_data): # self,
         setpoint_msg.velocity.y = max_velocity * joy_data.axes[3]
         setpoint_msg.velocity.z = max_velocity * joy_data.axes[1]
         setpoint_msg.yaw_rate = max_velocity * joy_data.axes[0]
-    elif joy_data.buttons[1] == 1:
-        hover_flag = True
-    elif joy_data.buttons[7] == 1:
-        path_require_()
+    # elif joy_data.buttons[0] == 1:
+    #     rospy.wait_for_service('/n_path/mission_terminate')
+    #     try:
+    #         terminate_srv = rospy.ServiceProxy('/n_path/mission_terminate', mission_terminate)
+    #         terminate_result = terminate_srv()
+    #     except rospy.ServiceException as e:
+    #         print("Service call failed: %s"%e)
+    # elif joy_data.buttons[7] == 1:
+    #     path_require_()
 
         
 def state_callback(data):# self, 
@@ -115,6 +120,7 @@ def local_position_callback(data): # self,
     global setpoint_msg
     global hover
     global hover_flag
+    global current_yaw
     pose = data
     current_quat = [pose.pose.orientation.x, pose.pose.orientation.y, pose.pose.orientation.z, pose.pose.orientation.w]
     current_rmat = R.from_quat(current_quat)

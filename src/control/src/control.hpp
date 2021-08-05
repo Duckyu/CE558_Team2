@@ -1,271 +1,154 @@
-#define standby 0
-#define wait_control 1
-#define initiation 2
-#define local_control 3
-#define global_control 4
-#define control_end 5
-
-#define LOG_ERROR 0
-#define LOG_NORMAL 1
-#define LOG_EMERGENCY 2
-#define LOG_IMPORTANT 3
-
-# define M_PI 3.14159265358979323846
-
 #include <ros/ros.h>
 #include <time.h>
-#include <cmath>
-#include <tf/tf.h>
-#include <tf/transform_datatypes.h>
 
-//Pix message
-#include <geometry_msgs/Point.h>
-#include <geometry_msgs/Vector3.h>
-#include <geometry_msgs/Quaternion.h>
-#include <geometry_msgs/Pose.h>
-#include <geometry_msgs/PoseStamped.h>
-#include <mavros_msgs/CommandBool.h>
-#include <mavros_msgs/SetMode.h>
-#include <mavros_msgs/State.h>
-#include <mavros_msgs/ExtendedState.h>
-#include <mavros_msgs/PositionTarget.h>
-#include <mavros_msgs/CommandHome.h>
-#include <mavros_msgs/HomePosition.h>
-#include <nav_msgs/Odometry.h>
-#include <nav_msgs/Path.h>
-#include <std_msgs/Bool.h>
-#include <std_msgs/Time.h>
-#include <std_msgs/Float64.h>
-#include "std_msgs/String.h"
-#include "std_msgs/UInt16.h"
+#include "mavros_msgs/PositionTarget.h"
+#include "sensor_msgs/Joy.h"
+#include "sensor_msgs/PointCloud.h"
+#include "nav_msgs/path.h"
 
-// custom UAV Mission
-#include "n_cpp/mission_start.h"
-#include "n_cpp/init_step.h"
-#include "n_cpp/local_path.h"
-#include "n_cpp/global_path.h"
-#include "n_cpp/end.h"
-#include "n_cpp/path_terminate.h"
+#include "n_cpp/mission_terminate.h"
+#include "n_cpp/next_step.h"
+#include "n_cpp/collision_check.h"
 
+#include <decomp_ros_utils/data_ros_utils.h>
+#include <mpl_external_planner/ellipsoid_planner/ellipsoid_planner.h>
+#include <planning_ros_utils/data_ros_utils.h>
+#include <planning_ros_utils/primitive_ros_utils.h>
 
-#include <n_cpp/log_data.h>
+#include <sensor_msgs/point_cloud_conversion.h>
 
-class exploration_control
-{
-    private:
+class N_control{
+private:
+	bool arrival;
+	bool terminate;
+	int index = 0;
 
     //sub
     ros::Subscriber sub_pix_state;
     ros::Subscriber sub_pix_extstate;
     ros::Subscriber sub_pix_poseLocal;
-    ros::Subscriber sub_pix_home;
-
+    ros::Subscriber sub_octomap_occu;
+    ros::Subscriber sub_joy;
 
     // pub
     ros::Publisher local_setpoint_raw_pub;
-    ros::Publisher pub_log_data;
-    ros::Publisher flight_time_pub;
+    ros::Publisher pub_mission_time;
 
     //service client
-    ros::ServiceClient cmdArming;
-    ros::ServiceClient set_mode;
-    ros::ServiceClient set_home;
-    ros::ServiceClient path_termination;
+    ros::ServiceClient mission_terminate;
+    ros::ServiceClient next_step;
 
-    //service server
-    ros::ServiceServer srv_mission_start;
-    ros::ServiceServer srv_init_step;
-    ros::ServiceServer srv_local_path;
-    ros::ServiceServer srv_global_path;
-    ros::ServiceServer srv_end;
+    // //service server
+    // ros::ServiceServer srv_mission_start;
+    void cb_pix_state    (const mavros_msgs::State::ConstPtr &msg);
+    void cb_pix_extstate (const mavros_msgs::ExtendedState::ConstPtr &msg);
+    void cb_pix_poseLocal(const nav_msgs::Odometry::ConstPtr &msg);
+    void cb_joy			 (const sensor_msgs::Joy::ConstPtr &msg);
 
-    /// extras.cpp
-    geometry_msgs::Vector3 Quat2Angle(geometry_msgs::Quaternion quat);
-    double distance(geometry_msgs::Point A, geometry_msgs::Point B);
-    bool arrival_check(nav_msgs::Odometry UAV_position, geometry_msgs::Pose destination);
-    bool map_termination();
-    void log_pub_ros_info(int color, std::string log);
-    double LPF_filter(double prev_value, double curr_value, double LPF_gain);
-    double vel_saturation(double vel);
-    ros::Time initial_arrival;
-    std::string loglog_old;
-    std::string loglog;
+    ros::Timer ctrl_pub_timer;
 
+	// Initialize planner
+	double traj_dt, v_max, a_max, w, epsilon;
+	double u_max_z, u_max;
+	int max_num, num;
+	bool use_3d;
+	double robot_radius;
+	Vec3f origin, dim;
 
-    ///callback function
-    void cb_pix_state(const mavros_msgs::State::ConstPtr& msg);
-    void cb_pix_extstate(const mavros_msgs::ExtendedState::ConstPtr& msg);
-    void cb_pix_local(const nav_msgs::Odometry::ConstPtr &msg);
-    void cb_pix_home(const mavros_msgs::HomePosition::ConstPtr &msg);
-    bool fn_mission_start(n_cpp::mission_start::Request &request,
-                          n_cpp::mission_start::Response &response);
-    bool fn_init_step(n_cpp::init_step::Request &request,
-                        n_cpp::init_step::Response &response);
-    bool fn_local_path(n_cpp::local_path::Request &request,
-                           n_cpp::local_path::Response &response);
-    bool fn_global_path(n_cpp::global_path::Request &request,
-                           n_cpp::global_path::Response &response);
-    bool fn_end(n_cpp::end::Request &request,
-                           n_cpp::end::Response &response);
-
-
-    //control capsule function
-    bool register_home();
-    void offboard();
-    void arm();
-    void takeoff();
-    void move();
-    void hover();
-    void hover_reset();
-    void circle();
-
+public:
+	ros::NodeHandle nh;
+	void ctrl_timer(const ros::TimerEvent& event);
     ///position target control type arranged
     int velocity_control_type = mavros_msgs::PositionTarget::IGNORE_AFX|
-                                       mavros_msgs::PositionTarget::IGNORE_AFY|
-                                       mavros_msgs::PositionTarget::IGNORE_AFZ|
-                                       mavros_msgs::PositionTarget::IGNORE_PX|
-                                       mavros_msgs::PositionTarget::IGNORE_PY|
-                                       mavros_msgs::PositionTarget::IGNORE_PZ|
-                                       mavros_msgs::PositionTarget::IGNORE_YAW;
+                                mavros_msgs::PositionTarget::IGNORE_AFY|
+                                mavros_msgs::PositionTarget::IGNORE_AFZ|
+                                mavros_msgs::PositionTarget::IGNORE_PX|
+                                mavros_msgs::PositionTarget::IGNORE_PY|
+                                mavros_msgs::PositionTarget::IGNORE_PZ|
+                                mavros_msgs::PositionTarget::IGNORE_YAW;
 
     int position_control_type = mavros_msgs::PositionTarget::IGNORE_AFX|
-                                       mavros_msgs::PositionTarget::IGNORE_AFY|
-                                       mavros_msgs::PositionTarget::IGNORE_AFZ|
-                                       mavros_msgs::PositionTarget::IGNORE_VX|
-                                       mavros_msgs::PositionTarget::IGNORE_VY|
-                                       mavros_msgs::PositionTarget::IGNORE_VZ|
-                                       mavros_msgs::PositionTarget::IGNORE_YAW_RATE;
+                                mavros_msgs::PositionTarget::IGNORE_AFY|
+                                mavros_msgs::PositionTarget::IGNORE_AFZ|
+                                mavros_msgs::PositionTarget::IGNORE_VX|
+                                mavros_msgs::PositionTarget::IGNORE_VY|
+                                mavros_msgs::PositionTarget::IGNORE_VZ|
+                                mavros_msgs::PositionTarget::IGNORE_YAW_RATE;
 
     int yaw_align_control_type = mavros_msgs::PositionTarget::IGNORE_AFX|
-                                        mavros_msgs::PositionTarget::IGNORE_AFY|
-                                        mavros_msgs::PositionTarget::IGNORE_AFZ|
-                                        mavros_msgs::PositionTarget::IGNORE_VX|
-                                        mavros_msgs::PositionTarget::IGNORE_VY|
-                                        mavros_msgs::PositionTarget::IGNORE_VZ|
-                                        mavros_msgs::PositionTarget::IGNORE_YAW;
+                                 mavros_msgs::PositionTarget::IGNORE_AFY|
+                                 mavros_msgs::PositionTarget::IGNORE_AFZ|
+                                 mavros_msgs::PositionTarget::IGNORE_VX|
+                                 mavros_msgs::PositionTarget::IGNORE_VY|
+                                 mavros_msgs::PositionTarget::IGNORE_VZ|
+                                 mavros_msgs::PositionTarget::IGNORE_YAW;
 
     int waypoint_control_type = mavros_msgs::PositionTarget::IGNORE_AFX|
-                                       mavros_msgs::PositionTarget::IGNORE_AFY|
-                                       mavros_msgs::PositionTarget::IGNORE_AFZ|
-                                       mavros_msgs::PositionTarget::IGNORE_PX|
-                                       mavros_msgs::PositionTarget::IGNORE_PY|
-                                       mavros_msgs::PositionTarget::IGNORE_PZ|
-                                       mavros_msgs::PositionTarget::IGNORE_YAW_RATE;
+                                mavros_msgs::PositionTarget::IGNORE_AFY|
+                                mavros_msgs::PositionTarget::IGNORE_AFZ|
+                                mavros_msgs::PositionTarget::IGNORE_PX|
+                                mavros_msgs::PositionTarget::IGNORE_PY|
+                                mavros_msgs::PositionTarget::IGNORE_PZ|
+                                mavros_msgs::PositionTarget::IGNORE_YAW_RATE;
 
-    public:
-    ros::NodeHandle nh;
+	bool arrived(nav_msgs::path path, int idx);
+	bool next_local_collision(nav_msgs::path path, int idx); ////?????????????DUCKDUCKDUCK how to implement???????????????????????????????????????????????????????????????????????????????????????????????????????
+	bool traj_follow(nav_msgs::path path, int idx);
+	bool path_follow(nav_msgs::path path, int idx);
 
-    /// parameter in launch file
-    double takeoff_height;
-    double arrival_dist_thres;
-    double arrival_yaw_thres;
-    double max_vel;
-    double landing_vel;
-    double p_gain;
-    double i_gain;
-    double d_gain;
+	void spinOnce();
 
-    double img_x;
-    double img_y;
-    double safe_distance;
-    double unit_len_height;
-    double unit_len_planar;
+    //service client
+    ros::ServiceClient mission_terminate;
+    ros::ServiceClient next_step;
+    ros::ServiceClient collision_check;
+    ros::ServiceClient cmd_arming;
+    ros::ServiceClient set_mode;
+    ros::ServiceClient set_home;
 
+	N_control(ros::NodeHandle& n) : nh(n){
 
-    /// pix information
-    mavros_msgs::State pix_state; /// armed, guided, manual_input, mode, system_status
-    mavros_msgs::ExtendedState pix_extstate;
-    nav_msgs::Odometry pix_local; /// amsl, local
-    mavros_msgs::HomePosition pix_home;
-    geometry_msgs::Quaternion trans_home_quat;
-
-    // waypoint information
-    // #define standby 0
-    // #define wait 1
-    // #define init 2
-    // #define local_path 3
-    // #define global_path 4
-    // #define end 5
-    int control_mode = standby;
-
-
-    /// common control pub msg
-    // mavros_msgs::GlobalPositionTarget;
-    // mavros_msgs::PositionTarget;
-
-    /// fn_mission_start();
-    bool mission_started = false;
-
-    /// fn_init_step();
-    double init_radius = 5.0;
-
-    /// register_home()
-    bool home_registered = false;
-    // geometry_msgs::Quaternion home_quat;
-
-    int path_size;
-    nav_msgs::Path received_path;
-
-    /// offboard()
-    ros::Time offb_last_request;
-
-    /// arm();
-    ros::Time arm_last_request;
-
-    /// takeoff();
-    bool takeoff_flag = false;
-
-    /// circle()
-    ros::Time circle_start;
-    int circle_time = 0;
-    
-    /// move2waypoint();
-    int waypoint_index = 0;
-    mavros_msgs::PositionTarget startpoint;
-    bool arrival_flag = false;
-
-
-    /// for test flight
-    nav_msgs::Odometry recent_arrived_waypoint;
-    
-    /// hover();
-    bool hover_saved = false;
-    bool hover_flag = false;
-    nav_msgs::Odometry saved_point;
-
-    ros::Time mission_start_time;
-
-    /// For main function
-    void spinOnce();
-
-    exploration_control(){
-        ///control topic pub
-        local_setpoint_raw_pub = nh.advertise<mavros_msgs::PositionTarget>("/mavros/setpoint_raw/local", 10);
-
-        ///log topic pub
-        pub_log_data = nh.advertise<n_cpp::log_data>("/exploration_control/log_data", 30);
-
-        ///mission time pub
-        flight_time_pub = nh.advertise<std_msgs::Float64>("/exploration_control/flight_time", 30);
-
-        ///pixhawk data subs
-        sub_pix_state = nh.subscribe<mavros_msgs::State>("/mavros/state", 10, &exploration_control::cb_pix_state,this);
-        sub_pix_extstate = nh.subscribe<mavros_msgs::ExtendedState>("/mavros/extended_state", 10, &exploration_control::cb_pix_extstate,this);
-        sub_pix_poseLocal = nh.subscribe<nav_msgs::Odometry>("/mavros/local_position/odom", 1, &exploration_control::cb_pix_local,this);
-        sub_pix_home = nh.subscribe<mavros_msgs::HomePosition>("/mavros/home_position/home", 1, &exploration_control::cb_pix_home,this);
+		nh.param("robot_r", robot_radius, 0.5);
+		nh.param("origin_x", origin(0), 0.0);
+		nh.param("origin_y", origin(1), 0.0);
+		nh.param("origin_z", origin(2), 0.0);
+		nh.param("range_x", dim(0), 0.0);
+		nh.param("range_y", dim(1), 0.0);
+		nh.param("range_z", dim(2), 0.0);
+		nh.param("traj_dt", traj_dt, 0.03);
+		nh.param("epsilon", epsilon, 1.0);
+		nh.param("v_max", v_max, -1.0);
+		nh.param("a_max", a_max, -1.0);
+		nh.param("u_max", u_max, 1.0);
+		nh.param("u_max_z", u_max_z, 1.0);
+		nh.param("w", w, 10.);
+		nh.param("num", num, 1);
+		nh.param("max_num", max_num, -1);
+		nh.param("use_3d", use_3d, false);
+		
+		///control topic pub
+		local_setpoint_raw_pub = nh.advertise<mavros_msgs::PositionTarget>("/mavros/setpoint_raw/local", 10);
         
+		///mission time pub
+		pub_mission_time = nh.advertise<std_msgs::Time>("/manuever_time", 30);
+
+		///pixhawk data subs
+		sub_pix_state = nh.subscribe<mavros_msgs::State>("/mavros/state", 10, &N_control::cb_pix_state,this);
+        sub_pix_extstate = nh.subscribe<mavros_msgs::ExtendedState>("/mavros/extended_state", 10, &N_control::cb_pix_extstate,this);
+        sub_pix_poseLocal = nh.subscribe<nav_msgs::Odometry>("/mavros/local_position/pose", 1, &N_control::cb_pix_local,this);
+		sub_octomap = nh.subscribe<sensor_msgs::PointCloud>("/mavros/local_position/pose", 1, &N_control::cb_octomap,this);
+		sub_joy = nh.subscribe<sensor_msgs::Joy>("/joy", 1, &N_control::cb_joy,this);
+
         ///px4 service client
-        cmdArming = nh.serviceClient<mavros_msgs::CommandBool>("/mavros/cmd/arming");
+        mission_terminate = nh.serviceClient<mavros_msgs::CommandBool>("/n_path/mission_terminate");
+	    next_step = nh.serviceClient<mavros_msgs::CommandBool>("/n_path/next_step");
+	    collision_check = nh.serviceClient<mavros_msgs::CommandBool>("/n_octo/collision_check");
+        cmd_arming = nh.serviceClient<mavros_msgs::CommandBool>("/mavros/cmd/arming");
         set_mode = nh.serviceClient<mavros_msgs::SetMode>("/mavros/set_mode");
         set_home = nh.serviceClient<mavros_msgs::CommandHome>("/mavros/cmd/set_home");
-        path_termination = nh.serviceClient<n_cpp::path_terminate>("/exploration_control/path_terminate");
 
-        ///UAV control service server
-        srv_mission_start = nh.advertiseService("/exploration_control/mission_start", &exploration_control::fn_mission_start, this);
-        srv_init_step = nh.advertiseService("/exploration_control/initiation", &exploration_control::fn_init_step, this);
-        srv_local_path = nh.advertiseService("/exploration_control/local_path", &exploration_control::fn_local_path, this);
-        srv_global_path = nh.advertiseService("/exploration_control/global_path", &exploration_control::fn_global_path, this);
-        srv_end = nh.advertiseService("/exploration_control/end", &exploration_control::fn_end, this);
-    }
-    ~exploration_control(){}
-};
+        ctrl_pub_timer = nh.createTimer(ros::Duration(traj_dt), &N_control::ctrl_timer, this);
+	};
+	~N_control(){};
+
+}

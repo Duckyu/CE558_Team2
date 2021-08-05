@@ -1,0 +1,6 @@
+bool escape
+---
+geometry_msgs/Point[] ref_triple
+nav_msgs/Path raw_path
+planning_ros_msgs/Trajectory raw_traj
+planning_ros_msgs/Trajectory final_traj

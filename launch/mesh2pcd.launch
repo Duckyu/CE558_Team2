@@ -1,0 +1,49 @@
+<launch>
+  #### From STL To Cloud ####
+  <arg name="file_name"      default="/home/duckyu/catkin_ws_b/src/N-CPP/models/text_description/meshes/URL.stl"/>
+  <arg name="x"       default="0"/>
+  <arg name="y"       default="0"/>
+  <arg name="z"       default="0"/>
+  <arg name="R"       default="0"/>
+  <arg name="P"       default="0"/>
+  <arg name="Y"       default="0"/>
+  
+  <arg name="out_path"       default="/home/duckyu/catkin_ws_b/src/N-CPP/models/text_description"/>
+  <arg name="n_samples"    default="1000000"/>
+  <arg name="leaf_size"    default="0.05"/>
+  <arg name="save_pcd"       default="true"/>
+
+  <node pkg="n_cpp"
+    type="n_ref_mesh"
+    name="n_ref_mesh"
+    output="screen">
+    <param name="file" value="$(arg file_name)"/>
+    <param name="x" value="$(arg x)"/>
+    <param name="y" value="$(arg y)"/>
+    <param name="z" value="$(arg z)"/>
+    <param name="R" value="$(arg R)"/>
+    <param name="P" value="$(arg P)"/>
+    <param name="Y" value="$(arg Y)"/>
+    <param name="out_path" value="$(arg out_path)"/>
+    <remap from="~cloud" to="cloud"/>
+    <param name="n_samples" value="$(arg n_samples)"/>
+    <param name="leaf_size" value="$(arg leaf_size)"/>
+    <param name="save_pcd" type="bool" value="$(arg save_pcd)"/>
+  </node>
+
+  #### From Cloud To VoxelMap ####
+  <!--node pkg="n_cpp"
+    type="n_ref_mesh"
+    name="n_ref_mesh"
+    output="screen">
+    <remap from="~cloud" to="cloud"/>
+    <remap from="~voxel_map" to="voxel_map"/>
+    <param name="resolution" value="0.1"/>
+    <param name="origin_x" value="0"/>
+    <param name="origin_y" value="0"/>
+    <param name="origin_z" value="0.2"/>
+    <param name="range_x" value="10"/>
+    <param name="range_y" value="10"/>
+    <param name="range_z" value="5.5"/>
+  </node-->
+</launch>

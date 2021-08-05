@@ -1,3 +1,3 @@
 <launch>
-    <node pkg="CE558_Team2" type="tester" name="tester" output="screen" launch-prefix="gdb -ex run --args"/>
+    <node pkg="n_cpp" type="tester" name="tester" output="screen" launch-prefix="gdb -ex run --args"/>
 </launch>

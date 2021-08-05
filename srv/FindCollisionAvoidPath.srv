@@ -1,0 +1,4 @@
+geometry_msgs/Point drone
+geometry_msgs/Point startPoint
+---
+nav_msgs/Path startPath

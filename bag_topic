@@ -1,0 +1,4 @@
+rosbag record /N_octo/occu /N_octo/tri_points /UAV /camera_front/rgb/image_raw /camera_up/rgb/image_raw /clock /gazebo/link_states /gazebo/model_states /joy /mavros/extended_state /mavros/local_position/pose /mavros/setpoint_raw/local /mavros/state /n_path/cand /n_path/closest_tri /n_path/feature_traj /n_path/normal /n_path/raw_path /tf /tf_static -o ~/NVME/ncppBag/URL0
+
+
+/camera_up/depth/image_raw /camera_up/depth/points /N_octo/free /N_octo/new /N_octo/occu /camera_front/depth/image_raw /camera_front/depth/points /camera_front/rgb/camera_info /mavros/imu/data  /n_path/raw_traj /camera_up/rgb/camera_info /gazebo/parameter_descriptions 

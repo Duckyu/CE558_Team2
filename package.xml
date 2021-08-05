@@ -13,7 +13,7 @@
   <!-- One license tag required, multiple allowed, one license per tag -->
   <!-- Commonly used license strings: -->
   <!--   BSD, MIT, Boost Software License, GPLv2, GPLv3, LGPLv2.1, LGPLv3 -->
-  <license>TODO</license>
+  <license>MIT</license>
 
 
   <!-- Url tags are optional, but mutiple are allowed, one per tag -->
@@ -59,6 +59,25 @@
   <run_depend>pcl_conversions</run_depend>
   <run_depend>pcl_ros</run_depend>
 
+  <build_depend>motion_primitive_library</build_depend>
+  <build_depend>mpl_external_planner</build_depend>
+  <build_depend>decomp_ros_msgs</build_depend>
+  <build_depend>decomp_ros_utils</build_depend>
+  <build_depend>planning_ros_msgs</build_depend>
+  <build_depend>planning_ros_utils</build_depend>
+  <build_depend>decomp_ros_utils</build_depend>
+  <build_depend>mpl_external_planner</build_depend>
+  <run_depend>motion_primitive_library</run_depend>
+  <run_depend>mpl_external_planner</run_depend>
+  <run_depend>decomp_ros_msgs</run_depend>
+  <run_depend>decomp_ros_utils</run_depend>
+  <run_depend>planning_ros_msgs</run_depend>
+  <run_depend>planning_ros_utils</run_depend>
+  <run_depend>decomp_ros_utils</run_depend>
+  <run_depend>mpl_external_planner</run_depend>
+
+  <build_depend>message_generation</build_depend>
+  <run_depend>message_runtime</run_depend>
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>

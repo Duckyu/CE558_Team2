@@ -1,0 +1,5 @@
+bool pub_pc
+bool terminate_flag
+---
+sensor_msgs/PointCloud2 tripoints
+geometry_msgs/PoseStamped curr_pose

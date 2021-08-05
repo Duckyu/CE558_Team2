@@ -1,0 +1,25 @@
+<launch>
+    <arg name="sensor_range"       default="18.0"/>
+    <arg name="octomap_resolution" default="0.3"/>
+    <arg name="octomap_hit"        default="0.55"/>
+    <arg name="octomap_miss"       default="0.45"/>
+    <arg name="octomap_hz"         default="10.0"/>
+    <arg name="num_neigbor_points" default="10"/>
+    <arg name="std_multiplier"     default="0.5"/>
+    <arg name="valid_min_num"     default="1"/>
+    <arg name="ground_thresh"     default="0.5"/>
+    <arg name="looking_sky"     default="3.0"/>
+
+
+    <param name="/sensor_range"       value="$(arg sensor_range)" />
+    <param name="/octomap_resolution" value="$(arg octomap_resolution)" />
+    <param name="/octomap_hit"        value="$(arg octomap_hit)" />
+    <param name="/octomap_miss"       value="$(arg octomap_miss)" />
+    <param name="/octomap_hz"         value="$(arg octomap_hz)" />
+    <param name="/num_neigbor_points" value="$(arg num_neigbor_points)" />
+    <param name="/std_multiplier"     value="$(arg std_multiplier)" />
+    <param name="/valid_min_num"     value="$(arg valid_min_num)" />
+    <param name="/looking_sky"     value="$(arg looking_sky)" />
+    <!--xterm -e *run* args-->
+    <node pkg="n_cpp" type="n_octomap" name="n_octomap" output="screen" launch-prefix="gdb -ex run --args"/>
+</launch>
