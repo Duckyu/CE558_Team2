@@ -167,7 +167,8 @@ public:
 	nav_msgs::Path path_gen();
 	// nav_msgs::Path PathToStart(geometry_msgs::PoseStamped start, geometry_msgs::PoseStamped end);
 	// planning_ros_msgs::Trajectory PathToStart(geometry_msgs::PoseStamped start, geometry_msgs::PoseStamped end);
-	n_cpp::NextStep::Response new_path_gen(bool escape);
+	n_cpp::NextStep::Response new_path_gen(bool escape);//surface path
+	geometry_msgs::PoseStamped pose_correction_path_gen(sensor_msgs::PointCloud2 key_cloud);
 	
 	N_path(ros::NodeHandle& n) : nh(n)
 	{

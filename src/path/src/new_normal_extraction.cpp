@@ -1,4 +1,10 @@
 #include "path_gen.hpp"
+
+geometry_msgs::PoseStamped N_path::pose_correction_path_gen(sensor_msgs::PointCloud2 key_cloud)
+{
+	
+}
+
 n_cpp::NextStep::Response N_path::new_path_gen(bool escape)
 {
 	////Generate kd-tree
