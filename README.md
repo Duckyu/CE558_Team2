@@ -2,9 +2,8 @@
  Online active 3d reconstruction of structure.
 ## To Do List
 - [x] Cumulated map generation
-- [ ] updated pointcloud detection
-- [ ] randomly select the pointcloud for waypoint generation
-- [ ] waypoint elimination
+- [x] updated pointcloud detection
+- [x] waypoint elimination
 - [ ] trajectory generation from waypoint set
 - [ ] trajectory following 
 - [ ] integrating

@@ -23,10 +23,13 @@
 
 	<!-- vehicle model and world -->
 	<arg name="est" default="ekf2"/>
-	<!--arg name="vehicle" default="iris"/-->
-	<arg name="vehicle" default="iris_vision"/>
+	<!-- <arg name="vehicle" default="modular_ver1"/> -->
+	<!-- <arg name="vehicle" default="iris_vision"/> -->
+	<arg name="vehicle" default="iris"/>
 	<arg name="world" default="$(find px4_sitl_duck)/worlds/ncpp_RGBD_bridge.world"/>
+	<!-- <arg name="world" default="$(find px4_sitl_duck)/worlds/temp_modular.world"/> -->
 	<env name="PX4_SIM_MODEL" value="$(arg vehicle)" />
+	<env name="PX4_SIM_MODEL" value="modular_ver1" />
 	<env name="PX4_ESTIMATOR" value="$(arg est)" />
 
 	<!-- gazebo configs -->

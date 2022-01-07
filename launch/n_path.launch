@@ -8,14 +8,14 @@
     <arg name="max_cluster"        default="100"/>
     <arg name="dist_ratio" default="3.0"/>
     <!-- MPL param-->
-    <arg name="dt" default="0.2"/>
+    <!-- <arg name="dt" default="0.2"/>
     <arg name="v_max" default="2.0"/>
     <arg name="a_max" default="1.0"/>
     <arg name="yaw_max" default="-1.0"/>
     <arg name="u_max" default="10.0"/>
     <arg name="u_yaw" default="3.0"/>
     <arg name="num" default="1"/>
-    <arg name="max_num" default="-1"/>
+    <arg name="max_num" default="-1"/> -->
 
     <arg name="path_min"           default="1.5"/><!-- 2.5 7.0-->
     <arg name="path_max"           default="7.0"/><!-- 2.5 7.0-->
@@ -37,14 +37,14 @@
     <param name="/pub_candidate"      value="$(arg pub_candidate)" />
     <param name="/correction"      value="$(arg correction)" />
 
-    <param name="dt" value="$(arg dt)"/>
+    <!-- <param name="dt" value="$(arg dt)"/>
     <param name="v_max" value="$(arg v_max)"/>
     <param name="a_max" value="$(arg a_max)"/>
     <param name="u_max" value="$(arg u_max)"/>
     <param name="yaw_max" value="$(arg yaw_max)"/>
-    <param name="u_yaw" value="$(arg u_yaw)"/>
+    <param name="u_yaw" value="$(arg u_yaw)"/> -->
     <!--<param name="t_max" value="$(eval dt*10)"/>-->
-    <param name="t_max" value="-1"/>
+    <!-- <param name="t_max" value="-1"/>
     <param name="use_prior" value="false"/>
     <param name="use_acc" value="false"/>
     <param name="use_jrk" value="true"/>
@@ -52,7 +52,7 @@
     <param name="w" value="10000"/>
     <param name="epsilon" value="2"/>
     <param name="max_num" value="$(arg max_num)"/>
-    <param name="robot_r" value="0.5"/>
+    <param name="robot_r" value="0.5"/> -->
     <!--xterm -e *run* args-->
     <node pkg="n_cpp" type="n_path" name="n_path" output="screen" launch-prefix="gdb -ex run --args"/>
 </launch>

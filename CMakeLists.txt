@@ -19,6 +19,7 @@ find_package(mpl_external_planner REQUIRED)
 find_package(planning_ros_utils REQUIRED)
 include_directories(${planning_ros_utils_INCLUDE_DIRS} ${decomp_ros_utils_INCLUDE_DIRS} ${mpl_external_planner_INCLUDE_DIRS} ${MOTION_PRIMITIVE_LIBRARY_INCLUDE_DIRS} ${DECOMP_UTIL_INCLUDE_DIRS}) #${EIGEN3_INCLUDE_DIR} 
 
+
 # catkin_simple()#DUCK
 
 find_package(catkin REQUIRED COMPONENTS

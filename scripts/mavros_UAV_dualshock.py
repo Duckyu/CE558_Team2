@@ -53,7 +53,8 @@ def takeoff():
     setpoint_msg.yaw        = current_yaw
     move(setpoint_msg)
     arming_srv  = rospy.ServiceProxy('/mavros/cmd/arming', CommandBool)#mavros_msgs.srv.
-    arm_result  = arming_srv(True)
+    #arm_result  = arming_srv(True)
+    arming_srv(True)
     mode_srv    = rospy.ServiceProxy('/mavros/set_mode', SetMode)#mavros_msgs.srv.
     mode_result = mode_srv(0,"OFFBOARD")
 

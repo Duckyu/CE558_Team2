@@ -1,0 +1,45 @@
+{
+    "configurations": [
+        {
+            "browse": {
+                "databaseFilename": "",
+                "limitSymbolsToIncludedHeaders": true
+            },
+            "includePath": [
+                "/home/duckyu/catkin_ws_b/devel/include",
+                "/home/duckyu/catkin_ws/devel/include",
+                "/opt/ros/melodic/include",
+                "/home/duckyu/catkin_ws_b/src/aeplanner/aeplanner/include",
+                "/home/duckyu/catkin_ws_b/src/VINS-Fusion/camera_models/include",
+                "/home/duckyu/catkin_ws_b/src/darknet_ros/darknet_ros/include",
+                "/home/duckyu/catkin_ws_b/src/mpl_ros/DecompROS/decomp_ros_utils/include",
+                "/home/duckyu/catkin_ws_b/src/mpl_ros/DecompROS/DecompUtil/include",
+                "/home/duckyu/catkin_ws_b/src/luxonis/depthai-ros/depthai_bridge/include",
+                "/home/duckyu/catkin_ws_b/src/luxonis/depthai-ros-examples/depthai_examples/include",
+                "/home/duckyu/catkin_ws_b/src/aeplanner/kdtree/include",
+                "/home/duckyu/catkin_ws_b/src/LIO-SAM/include",
+                "/home/duckyu/catkin_ws_b/src/mpl_ros/motion_primitive_library/include",
+                "/home/duckyu/catkin_ws_b/src/mpl_ros/mpl_external_planner/include",
+                "/home/duckyu/catkin_ws_b/src/N-CPP/include",
+                "/home/duckyu/catkin_ws_b/src/nexus_4wd_mecanum_simulator/nexus_4wd_mecanum_gazebo/include",
+                "/home/duckyu/catkin_ws_b/src/nlopt/include",
+                "/home/duckyu/catkin_ws_b/src/numpy_eigen/include",
+                "/home/duckyu/catkin_ws_b/src/ouster_example/ouster_client/include",
+                "/home/duckyu/catkin_ws_b/src/ouster_example/ouster_ros/include",
+                "/home/duckyu/catkin_ws_b/src/ouster_example/ouster_viz/include",
+                "/home/duckyu/catkin_ws_b/src/mpl_ros/planning_ros_utils/include",
+                "/home/duckyu/catkin_ws_b/src/realsense-ros/realsense2_camera/include",
+                "/home/duckyu/catkin_ws_b/src/rita2020_dk/include",
+                "/home/duckyu/catkin_ws_b/src/aeplanner/rrtplanner/include",
+                "/home/duckyu/catkin_ws_b/src/urlpackage/unavlib/include",
+                "/usr/include"
+            ],
+            "name": "Linux",
+            "intelliSenseMode": "linux-gcc-x64",
+            "compilerPath": "/usr/bin/clang-8",
+            "cStandard": "c11",
+            "cppStandard": "c++14"
+        }
+    ],
+    "version": 4
+}

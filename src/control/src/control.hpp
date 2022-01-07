@@ -108,23 +108,23 @@ public:
 
 	N_control(ros::NodeHandle& n) : nh(n){
 
-		nh.param("robot_r", robot_radius, 0.5);
-		nh.param("origin_x", origin(0), 0.0);
-		nh.param("origin_y", origin(1), 0.0);
-		nh.param("origin_z", origin(2), 0.0);
-		nh.param("range_x", dim(0), 0.0);
-		nh.param("range_y", dim(1), 0.0);
-		nh.param("range_z", dim(2), 0.0);
-		nh.param("traj_dt", traj_dt, 0.03);
-		nh.param("epsilon", epsilon, 1.0);
-		nh.param("v_max", v_max, -1.0);
-		nh.param("a_max", a_max, -1.0);
-		nh.param("u_max", u_max, 1.0);
-		nh.param("u_max_z", u_max_z, 1.0);
-		nh.param("w", w, 10.);
-		nh.param("num", num, 1);
-		nh.param("max_num", max_num, -1);
-		nh.param("use_3d", use_3d, false);
+		// nh.param("robot_r", robot_radius, 0.5);
+		// nh.param("origin_x", origin(0), 0.0);
+		// nh.param("origin_y", origin(1), 0.0);
+		// nh.param("origin_z", origin(2), 0.0);
+		// nh.param("range_x", dim(0), 0.0);
+		// nh.param("range_y", dim(1), 0.0);
+		// nh.param("range_z", dim(2), 0.0);
+		// nh.param("traj_dt", traj_dt, 0.03);
+		// nh.param("epsilon", epsilon, 1.0);
+		// nh.param("v_max", v_max, -1.0);
+		// nh.param("a_max", a_max, -1.0);
+		// nh.param("u_max", u_max, 1.0);
+		// nh.param("u_max_z", u_max_z, 1.0);
+		// nh.param("w", w, 10.);
+		// nh.param("num", num, 1);
+		// nh.param("max_num", max_num, -1);
+		// nh.param("use_3d", use_3d, false);
 		
 		///control topic pub
 		local_setpoint_raw_pub = nh.advertise<mavros_msgs::PositionTarget>("/mavros/setpoint_raw/local", 10);
@@ -136,6 +136,7 @@ public:
 		sub_pix_state = nh.subscribe<mavros_msgs::State>("/mavros/state", 10, &N_control::cb_pix_state,this);
         sub_pix_extstate = nh.subscribe<mavros_msgs::ExtendedState>("/mavros/extended_state", 10, &N_control::cb_pix_extstate,this);
         sub_pix_poseLocal = nh.subscribe<nav_msgs::Odometry>("/mavros/local_position/pose", 1, &N_control::cb_pix_local,this);
+        //////////////
 		sub_octomap = nh.subscribe<sensor_msgs::PointCloud>("/mavros/local_position/pose", 1, &N_control::cb_octomap,this);
 		sub_joy = nh.subscribe<sensor_msgs::Joy>("/joy", 1, &N_control::cb_joy,this);
 
@@ -143,6 +144,7 @@ public:
         mission_terminate = nh.serviceClient<mavros_msgs::CommandBool>("/n_path/mission_terminate");
 	    next_step = nh.serviceClient<mavros_msgs::CommandBool>("/n_path/next_step");
 	    collision_check = nh.serviceClient<mavros_msgs::CommandBool>("/n_octo/collision_check");
+        //////////////
         cmd_arming = nh.serviceClient<mavros_msgs::CommandBool>("/mavros/cmd/arming");
         set_mode = nh.serviceClient<mavros_msgs::SetMode>("/mavros/set_mode");
         set_home = nh.serviceClient<mavros_msgs::CommandHome>("/mavros/cmd/set_home");
