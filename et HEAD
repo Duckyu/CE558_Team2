@@ -1,0 +1,186 @@
+[33mcommit 9f9ec094c0faf57cbb922cf14173dcbce6f15652[m[33m ([m[1;36mHEAD -> [m[1;32mdummy_pose_correction[m[33m)[m
+Author: Duckyu Choi <duckyu@kaist.ac.kr>
+Date:   Fri Mar 25 16:46:38 2022 +0900
+
+    220325
+
+[33mcommit ed96a1fa291a34ce419b44b904362e886c4bf03d[m[33m ([m[1;31morigin/dummy_pose_correction[m[33m, [m[1;32mlist[m[33m, [m[1;32m220325[m[33m)[m
+Author: Duckyu Choi <duckyu@kaist.ac.kr>
+Date:   Sat Jan 8 00:58:38 2022 +0900
+
+    220108_backup
+
+[33mcommit 5528065c41e38b0e8feb0033c5a95e7dd2825d51[m
+Author: Duckyu Choi <duckyu@kaist.ac.kr>
+Date:   Thu Aug 5 19:41:31 2021 +0900
+
+    graduation code
+
+[33mcommit 72180666c1c52e1f63dbf1c9f9cbfc720df6c218[m[33m ([m[1;31morigin/master[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmaster[m[33m)[m
+Author: Duckyu Choi <duckyu@kaist.ac.kr>
+Date:   Wed Jan 6 20:18:55 2021 +0900
+
+    plan added
+
+[33mcommit 730e0ca9610f275d5ca8dee30364760eef31eebb[m
+Author: Duckyu Choi <duckyu@kaist.ac.kr>
+Date:   Fri Jan 1 09:41:53 2021 +0900
+
+    build available
+
+[33mcommit d09f4fc6d98ba3c551a86d9b1f92147cc9a169d7[m
+Author: Duckyu Choi <duckyu@kaist.ac.kr>
+Date:   Thu Dec 31 22:24:35 2020 +0900
+
+    N-CPP init
+
+[33mcommit 97bb4a79e7d42b4160a87dbc227c89f18923e0dc[m
+Author: Duckyu <duckyu@kaist.ac.kr>
+Date:   Tue Dec 29 13:34:45 2020 +0900
+
+    Update README.md
+
+[33mcommit 42defcb317ef393203d255d055b8a5167350c317[m
+Author: Duckyu Choi <duckyu@kaist.ac.kr>
+Date:   Wed Dec 9 13:26:01 2020 +0900
+
+    rviz testing
+
+[33mcommit e63e79513c6a549e07d426fcf2883a8cdd0513c1[m
+Author: Duckyu Choi <duckyu@kaist.ac.kr>
+Date:   Mon Nov 9 09:31:49 2020 +0900
+
+    code
+
+[33mcommit 4c96b23f5009b08283682fdacfbed8f56d213b8c[m
+Author: Duckyu Choi <duckyu@kaist.ac.kr>
+Date:   Mon Nov 2 13:19:51 2020 +0900
+
+    debug bugbug
+
+[33mcommit 1b19c83b21d85b327e9005932efd3de94a80c610[m
+Author: Duckyu Choi <duckyu@kaist.ac.kr>
+Date:   Mon Oct 26 13:10:20 2020 +0900
+
+    tf publisher added
+
+[33mcommit 21544928d294da5ef0e9a62d5fa9b27e7f2ab4c2[m
+Author: Duckyu Choi <duckyu@kaist.ac.kr>
+Date:   Mon Oct 26 10:33:04 2020 +0900
+
+    code architecture
+
+[33mcommit 4bf2ed1b725a928ce3f498d99fd61fd9cb903b43[m
+Author: Duckyu Choi <duckyu@kaist.ac.kr>
+Date:   Mon Oct 12 13:40:55 2020 +0900
+
+    code on goning
+
+[33mcommit bd7261def71613ad16408bb6c7f7d22d6605f9ac[m
+Author: Duckyu Choi <duckyu@kaist.ac.kr>
+Date:   Sat Oct 10 20:11:56 2020 +0900
+
+    test code debug
+
+[33mcommit 0d7d2f58b8de7d973f02f794c58a4248e99662bb[m
+Merge: 1295f30 41e2d8d
+Author: Duckyu Choi <duckyu@kaist.ac.kr>
+Date:   Mon Oct 5 13:26:20 2020 +0900
+
+    fixed
+
+[33mcommit 1295f30464e6277df26bcc651acdc60e55d0335a[m
+Author: Duckyu Choi <duckyu@kaist.ac.kr>
+Date:   Mon Oct 5 13:23:13 2020 +0900
+
+    inlude & reference file added
+
+[33mcommit 41e2d8dc235154ea5360bbe9e1e5a02e5fa4e1ec[m
+Author: Duckyu Choi <duckyu@kaist.ac.kr>
+Date:   Mon Oct 5 00:25:12 2020 +0900
+
+    test completed
+
+[33mcommit 3fe4d032ac4dbf929b3e3706361aa635cc5f7af2[m
+Author: Duckyu <duckyu@kaist.ac.kr>
+Date:   Mon Sep 28 13:18:48 2020 +0900
+
+    Update README.md
+
+[33mcommit beac45510c875f678bbecf3c007750623392b5a1[m
+Author: Duckyu <duckyu@kaist.ac.kr>
+Date:   Mon Sep 28 13:18:12 2020 +0900
+
+    Update README.md
+
+[33mcommit 655d5fec741786266bbccf7a861846ad7b8e872a[m
+Author: Duckyu <duckyu@kaist.ac.kr>
+Date:   Mon Sep 28 13:17:53 2020 +0900
+
+    Update README.md
+
+[33mcommit b43d9babb63c0e8408a84b3ba57e92409f8d3486[m
+Author: Duckyu <duckyu@kaist.ac.kr>
+Date:   Mon Sep 28 13:17:35 2020 +0900
+
+    Update README.md
+
+[33mcommit f9ddbfa876aa315342ee865abf6c7fc0b1332d4a[m
+Author: Duckyu <duckyu@kaist.ac.kr>
+Date:   Mon Sep 28 13:16:07 2020 +0900
+
+    Update README.md
+
+[33mcommit 04df9dc64a536e00a66bb6152db1b764ad902872[m
+Author: Duckyu <duckyu@kaist.ac.kr>
+Date:   Mon Sep 28 13:15:51 2020 +0900
+
+    Update README.md
+
+[33mcommit f172f31b406de6753b5015a7d0e2f439fc70544d[m
+Author: Duckyu Choi <duckyu@kaist.ac.kr>
+Date:   Wed Sep 23 23:33:35 2020 +0900
+
+    markdown
+
+[33mcommit ecf892256a50db9244264d5c5648fc22a07692fb[m
+Author: Duckyu Choi <duckyu@kaist.ac.kr>
+Date:   Wed Sep 23 22:34:30 2020 +0900
+
+    recovered my mistake
+
+[33mcommit 2179b7574fbf48490eb33da68b06f98b90b166ca[m
+Author: Duckyu Choi <duckyu@kaist.ac.kr>
+Date:   Wed Sep 23 22:21:24 2020 +0900
+
+    UAV simple control python script
+
+[33mcommit f1ae7f21cedda639fea84be45c0b70899ed6f985[m
+Author: Duckyu Choi <duckyu@kaist.ac.kr>
+Date:   Mon Sep 14 14:07:53 2020 +0900
+
+    Introduction latex init
+
+[33mcommit 86769c093e68774a56c38acf17af57a6c5aae533[m
+Author: Duckyu Choi <duckyu@kaist.ac.kr>
+Date:   Mon Sep 7 14:01:05 2020 +0900
+
+    remove temp
+
+[33mcommit 25a4b4eea1ec63279a13b0d6dfe9493adc9c1fe5[m
+Author: Duckyu Choi <duckyu@kaist.ac.kr>
+Date:   Mon Sep 7 14:00:35 2020 +0900
+
+    test
+
+[33mcommit a1e29b1de6588a914835ea914cd840b498f49156[m
+Author: Duckyu Choi <duckyu@kaist.ac.kr>
+Date:   Mon Sep 7 13:44:22 2020 +0900
+
+    doc added
+
+[33mcommit 662e930f537f454631932f476cbed6c684ae10cd[m
+Author: Duckyu Choi <duckyu@kaist.ac.kr>
+Date:   Mon Aug 31 13:28:29 2020 +0900
+
+    start!
