@@ -17,7 +17,7 @@ find_package(catkin REQUIRED COMPONENTS
     pcl_ros
     laser_geometry
     sensor_msgs
-    unavlib
+    # unavlib
     message_generation
     message_filters
 )
